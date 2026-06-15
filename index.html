@@ -16,11 +16,9 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 0; color: #2c3e50; overflow: hidden; }
         
-        /* Исправленный контейнер с жесткой фиксацией высоты */
         .app-container { background: #ffffff; width: 100vw; height: 100vh; max-width: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .app-header { background: #2563eb; color: white; padding: 25px 20px 20px 20px; padding-top: calc(15px + env(safe-area-inset-top)); text-align: center; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; flex-shrink: 0; }
         
-        /* Контент больше не падает под кнопки */
         .app-content { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 15px; justify-content: flex-start; overflow-y: auto; }
         
         .bank-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 20px; padding: 20px; color: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); position: relative; overflow: hidden; }
@@ -39,15 +37,14 @@
         .btn-add { background: #10b981; }
         .btn-add:hover { background: #059669; }
         
-        /* Новая, гарантированно видимая нижняя панель навигации */
-        .nav-buttons { display: flex; gap: 12px; padding: 15px 20px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); background: #ffffff; border-top: 1px solid #e2e8f0; flex-shrink: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
-        .btn-nav { flex: 1; padding: 16px; font-size: 16px; font-weight: 700; text-align: center; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* Кнопки меню теперь стоят в обычном потоке, никуда не уплывают */
+        .nav-buttons { display: flex; gap: 12px; width: 100%; margin-top: 10px; margin-bottom: 30px; }
+        .btn-nav { flex: 1; padding: 16px; font-size: 16px; font-weight: 700; text-align: center; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
         .btn-nav-work { background: #8b5cf6; }
         .btn-nav-work:hover { background: #7c3aed; }
         .btn-nav-history { background: #475569; }
         .btn-nav-history:hover { background: #334155; }
         
-        /* Модальные окна с безопасным отступом снизу */
         .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 10; }
         .modal-content { background: white; width: 100%; max-height: 85%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s ease; padding-bottom: calc(30px + env(safe-area-inset-bottom)); overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
@@ -74,8 +71,6 @@
         .amount-spend { color: #ef4444; font-weight: 700; }
         .reason-text { color: #334155; font-size: 14px; max-width: 180px; word-wrap: break-word; text-align: right; }
         .empty-history { text-align: center; color: #94a3b8; font-size: 14px; margin: 40px 0; }
-        
-        /* Кнопка очистки истории приподнята для удобного нажатия */
         .btn-clear { background: #94a3b8; padding: 14px; font-size: 14px; border-radius: 12px; width: 100%; text-align: center; margin-top: auto; margin-bottom: 5px; }
     </style>
 </head>
@@ -83,7 +78,7 @@
 <div class="app-container">
     <div class="app-header">КиндерБанк</div>
     
-    <!-- Основной скролл-контент -->
+    <!-- Кнопки навигации перенесены внутрь основного скролла, сразу под формы -->
     <div class="app-content">
         <div class="bank-card">
             <div class="card-label">Текущий баланс</div>
@@ -118,12 +113,12 @@
                 <button class="btn-nav" style="background: #0284c7; width: 100%; padding: 12px; box-shadow: none;" onclick="receiveCheck()">📥 Принять Чек (От продавца)</button>
             </div>
         </div>
-    </div>
 
-    <!-- Жестко зафиксированные кнопки навигации внизу экрана -->
-    <div class="nav-buttons">
-        <button class="btn-nav btn-nav-work" onclick="toggleModal('workModal', true)">💼 Работа</button>
-        <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
+        <!-- Кнопки теперь отображаются ТУТ, ниже будет просто белый фон -->
+        <div class="nav-buttons">
+            <button class="btn-nav btn-nav-work" onclick="toggleModal('workModal', true)">💼 Работа</button>
+            <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
+        </div>
     </div>
 
     <!-- Модальное окно истории -->
@@ -160,7 +155,7 @@
 
 <script>
     // === ОБНОВЛЕННЫЙ БЛОК PWA С АВТО-ОЧИСТКОЙ КЭША ===
-    const CACHE_NAME = 'kinderbank-v5'; 
+    const CACHE_NAME = 'kinderbank-v6'; 
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE_NAME = '${CACHE_NAME}';
@@ -345,7 +340,7 @@
         const checkCode = `КБ-${amount}-${myWalletId}${randomId}${controlSum}`;
         
         balance -= amount; 
-        addHistoryRecord('spend', amount, `Создан чек на перевод`); // Запись в "Операции"
+        addHistoryRecord('spend', amount, `Создан чек на перевод`); 
         updateDisplay();
         playSound('click');
         checkDisplay.innerText = checkCode; checkArea.style.display = 'block'; amountInput.value = '';
@@ -363,11 +358,10 @@
         playSound('success');
     }
 
-       function receiveCheck() {
+    function receiveCheck() {
         const rawCode = prompt('Введите код чека от покупателя:'); if (rawCode === null) return;
         const code = rawCode.trim().toUpperCase(); const parts = code.split('-');
         
-        // ИСПРАВЛЕНО: Сверяем именно первый элемент массива (буквы КБ)
         if (parts.length !== 3 || parts[0] !== 'КБ') { playSound('error'); alert('Ошибка: Неверный формат чека! ❌'); return; }
         
         const amount = parseInt(parts[1]); const tail = parts[2];
@@ -387,12 +381,11 @@
         const comment = prompt('За какой товар вы принимаете оплату?', 'Продажа товара'); const finalComment = comment ? comment.trim() : 'Продажа';
         
         balance += amount; 
-        addHistoryRecord('add', amount, `Получено по чеку: ${finalComment}`);
+        addHistoryRecord('add', amount, `Получено по чеку: ${finalComment}`); 
         updateDisplay();
         playSound('success');
         alert(`Успех! Чек подлинный. На ваш счет зачислено ${amount} 💰`);
     }
-
 
     function clearHistory() {
         const password = prompt('Введите секретный пароль для очистки истории:'); if (password === null) return;
