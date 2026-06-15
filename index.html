@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2563eb">
+    <title>КиндерБанк</title>
+    
+    <!-- Настройки PWA (Манифест прямо в коде для iOS и Android) -->
+    <link rel="manifest" href="data:application/manifest+json,{'name':'КиндерБанк','short_name':'КиндерБанк','start_url':'.','display':'standalone','background_color':'#2563eb','theme_color':'#2563eb'}">
+    <link rel="apple-touch-icon" href="https://flaticon.com">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 0; color: #2c3e50; overflow: hidden; }
+        
+        .app-container { background: #ffffff; width: 100vw; height: 100vh; max-width: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; padding-bottom: env(safe-area-inset-bottom); }
+        .app-header { background: #2563eb; color: white; padding: 25px 20px 20px 20px; padding-top: calc(15px + env(safe-area-inset-top)); text-align: center; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+        .app-content { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 15px; justify-content: flex-start; overflow-y: auto; }
+        
+        .bank-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 20px; padding: 20px; color: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); position: relative; overflow: hidden; }
+        .card-label { font-size: 12px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; margin-bottom: 5px; }
+        .balance { font-size: 30px; font-weight: 700; }
+        .card-chip { width: 35px; height: 25px; background: #fbbf24; border-radius: 4px; margin-top: 20px; opacity: 0.8; }
+        
+        .action-box { background: #f8fafc; padding: 12px; border-radius: 16px; border: 1px solid #edf2f7; }
+        .input-group { display: flex; gap: 10px; width: 100%; }
+        input, select { flex: 1; min-width: 0; padding: 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; font-weight: 600; text-align: center; background: white; }
+        input:focus, select:focus { border-color: #3b82f6; }
+        button { padding: 12px 15px; font-size: 15px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; color: white; white-space: nowrap; flex-shrink: 0; }
+        button:active { transform: scale(0.97); }
+        .btn-spend { background: #ef4444; }
+        .btn-spend:hover { background: #dc2626; }
+        .btn-add { background: #10b981; }
+        .btn-add:hover { background: #059669; }
+        
+        .nav-buttons { display: flex; gap: 10px; margin-top: auto; padding-bottom: 5px; }
+        .btn-nav { flex: 1; padding: 14px; font-size: 15px; font-weight: 600; text-align: center; border-radius: 12px; }
+        .btn-nav-work { background: #8b5cf6; }
+        .btn-nav-work:hover { background: #7c3aed; }
+        .btn-nav-history { background: #64748b; }
+        .btn-nav-history:hover { background: #475569; }
+        
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 10; }
+        .modal-content { background: white; width: 100%; max-height: 85%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s ease; padding-bottom: calc(20px + env(safe-area-inset-bottom)); overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .btn-close { background: none; color: #94a3b8; font-size: 24px; padding: 0; width: auto; font-weight: normal; }
+        
+        .form-container { display: flex; flex-direction: column; gap: 10px; }
+        .job-card { background: #f5f3ff; border: 2px dashed #c084fc; padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
+        .job-title { font-size: 18px; font-weight: 700; color: #6b21a8; }
+        .job-meta { font-size: 14px; color: #581c87; font-weight: 500; }
+        .job-timer { font-size: 26px; font-weight: 800; color: #dc2626; background: white; padding: 8px; border-radius: 10px; border: 1px solid #f3e8ff; margin: 5px 0; font-variant-numeric: tabular-nums; }
+        .btn-job-action { width: 100%; font-size: 16px; padding: 14px; background: #7c3aed; }
+        .btn-job-action:hover { background: #6d28d9; }
+        .btn-job-cancel { background: #ef4444; width: 100%; margin-top: 5px; }
+        .btn-job-cancel:hover { background: #dc2626; }
+        .btn-job-early { background: #3b82f6; width: 100%; margin-top: 5px; }
+        .btn-job-early:hover { background: #2563eb; }
+        
+        .history-list { display: flex; flex-direction: column; gap: 8px; }
+        .history-item { background: #f8fafc; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #cbd5e1; }
+        .item-add { border-left-color: #10b981; }
+        .item-spend { border-left-color: #ef4444; }
+        .amount-add { color: #10b981; font-weight: 700; }
+        .amount-spend { color: #ef4444; font-weight: 700; }
+        .reason-text { color: #334155; font-size: 14px; max-width: 180px; word-wrap: break-word; text-align: right; }
+        .empty-history { text-align: center; color: #94a3b8; font-size: 14px; margin: 40px 0; }
+        .btn-clear { background: #94a3b8; padding: 10px; font-size: 14px; border-radius: 10px; width: 100%; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="app-header">КиндерБанк</div>
+    <div class="app-content">
+        <div class="bank-card">
+            <div class="card-label">Текущий баланс</div>
+            <div class="balance" id="balanceDisplay">0 💰</div>
+            <div class="card-chip"></div>
+        </div>
+        
+        <!-- Обновленный блок Трат (Только Чеки) -->
+        <div class="action-box">
+            <div class="input-group" style="flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <input type="number" id="spendAmount" placeholder="Сумма трат" min="1">
+                    <select id="spendType" style="display: none;">
+                        <option value="check" selected>Создать Чек (Перевод)</option>
+                    </select>
+                </div>
+                <button class="btn-spend" style="width: 100%;" onclick="spendMoney()">💸 Выполнить операцию</button>
+            </div>
+            <div id="generatedCheckArea" style="display: none; margin-top: 10px; background: #fff5f5; border: 2px dashed #ef4444; padding: 10px; border-radius: 12px; text-align: center;">
+                <p style="font-size: 13px; color: #b91c1c; font-weight: 600;">Передай этот код продавцу для получения товара:</p>
+                <div id="checkCodeDisplay" style="font-size: 20px; font-weight: 800; color: #dc2626; margin: 5px 0; letter-spacing: 1px; user-select: all;">KB-XXXX</div>
+            </div>
+        </div>
+        
+        <!-- Обновленный блок Пополнения -->
+        <div class="action-box">
+            <div class="input-group" style="flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <input type="number" id="addAmount" placeholder="Сумма" min="1">
+                    <button class="btn-add" onclick="addMoney()">Пополнить</button>
+                </div>
+                <button class="btn-nav" style="background: #0284c7; width: 100%; padding: 12px;" onclick="receiveCheck()">📥 Принять Чек (От продавца)</button>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn-nav btn-nav-work" onclick="toggleModal('workModal', true)">💼 Работа</button>
+            <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно истории -->
+    <div class="modal-overlay" id="historyModal" onclick="if(event.target===this) toggleModal('historyModal', false)">
+        <div class="modal-content" id="historyContent">
+            <div class="modal-header">
+                <div class="modal-title">История</div>
+                <button class="btn-close" onclick="toggleModal('historyModal', false)">✕</button>
+            </div>
+            
+            <div style="display: flex; gap: 5px; background: #f1f5f9; padding: 4px; border-radius: 10px;">
+                <button id="tabOpsBtn" style="flex: 1; padding: 8px; font-size: 13px; background: #2563eb; color: white;" onclick="switchHistoryTab('ops')">💰 Операции</button>
+                <button id="tabJobsBtn" style="flex: 1; padding: 8px; font-size: 13px; background: none; color: #64748b;" onclick="switchHistoryTab('jobs')">💼 Работы</button>
+            </div>
+
+            <div class="history-list" id="historyList"></div>
+            <div class="history-list" id="jobHistoryList" style="display: none;"></div>
+            
+            <button class="btn-clear" onclick="clearHistory()">🗑️ Очистить всю историю</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно "Работа" -->
+    <div class="modal-overlay" id="workModal" onclick="if(event.target===this) toggleModal('workModal', false)">
+        <div class="modal-content" id="workContent">
+            <div class="modal-header">
+                <div class="modal-title">Биржа Труда (Работа)</div>
+                <button class="btn-close" onclick="toggleModal('workModal', false)">✕</button>
+            </div>
+            <div id="workZone"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // === БЛОК PWA И OFFLINE SERVICE WORKER ===
+    const CACHE_NAME = 'kinderbank-v1';
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const CACHE_NAME = '${CACHE_NAME}';
+            self.addEventListener('install', (e) => {
+                e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([location.pathname])));
+            });
+            self.addEventListener('fetch', (e) => {
+                e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request).catch(() => caches.match(location.pathname))));
+            });
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('PWA Error:', err));
+    }
+    // =========================================
+
+    let balance = parseInt(localStorage.getItem('kinder_balance')) || 0;
+    let historyData = JSON.parse(localStorage.getItem('kinder_history')) || [];
+    let jobHistoryData = JSON.parse(localStorage.getItem('kinder_job_history')) || [];
+    let usedChecks = JSON.parse(localStorage.getItem('kinder_used_checks')) || [];
+    let activeJob = JSON.parse(localStorage.getItem('kinder_active_job')) || null;
+    let currentHistoryTab = 'ops';
+    let timerInterval = null;
+    const SECRET_SALT = 7431;
+
+    updateDisplay();
+    renderHistory();
+    renderWorkZone();
+    checkActiveJobTimer();
+
+    function updateDisplay() {
+        document.getElementById('balanceDisplay').innerText = balance.toLocaleString() + ' 💰';
+        localStorage.setItem('kinder_balance', balance);
+    }
+
+    function toggleModal(modalId, show) {
+        const modal = document.getElementById(modalId);
+        const content = modal.querySelector('.modal-content');
+        if (show) {
+            modal.style.display = 'flex';
+            setTimeout(() => content.style.transform = 'translateY(0)', 10);
+        } else {
+            content.style.transform = 'translateY(100%)';
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+    }
+    function renderHistory() {
+        const historyList = document.getElementById('historyList'); 
+        const jobHistoryList = document.getElementById('jobHistoryList');
+        if (!historyList || !jobHistoryList) return;
+        
+        historyList.innerHTML = '';
+        if (historyData.length === 0) {
+            historyList.innerHTML = '<div class="empty-history">У вас пока нет операций</div>';
+        } else {
+            for (let i = historyData.length - 1; i >= 0; i--) {
+                let item = historyData[i]; let isAdd = item.type === 'add';
+                let itemClass = isAdd ? 'item-add' : 'item-spend';
+                let amountClass = isAdd ? 'amount-add' : 'amount-spend';
+                let sign = isAdd ? '+' : '-';
+                historyList.innerHTML += `
+                    <div class="history-item ${itemClass}">
+                        <span class="${amountClass}">${sign}${item.amount.toLocaleString()} 💰</span>
+                        <span class="reason-text">${item.reason}</span>
+                    </div>`;
+            }
+        }
+
+        jobHistoryList.innerHTML = '';
+        if (jobHistoryData.length === 0) {
+            jobHistoryList.innerHTML = '<div class="empty-history">Вы еще не выполняли задания</div>';
+        } else {
+            for (let i = jobHistoryData.length - 1; i >= 0; i--) {
+                let item = jobHistoryData[i];
+                jobHistoryList.innerHTML += `
+                    <div class="history-item item-add" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; font-weight: 700;">
+                            <span style="color:#6b21a8; font-size: 15px;">💼 ${item.title}</span>
+                            <span class="amount-add">+${item.amount.toLocaleString()} 💰</span>
+                        </div>
+                        <div style="color: #64748b; font-size: 13px; font-style: italic; width: 100%; text-align: left;">
+                            📝 Отзыв: ${item.comment}
+                        </div>
+                    </div>`;
+            }
+        }
+    }
+
+    function switchHistoryTab(tab) {
+        currentHistoryTab = tab;
+        const opsBtn = document.getElementById('tabOpsBtn'); const jobsBtn = document.getElementById('tabJobsBtn');
+        const opsList = document.getElementById('historyList'); const jobsList = document.getElementById('jobHistoryList');
+        if (tab === 'ops') {
+            opsBtn.style.background = '#2563eb'; opsBtn.style.color = 'white';
+            jobsBtn.style.background = 'none'; jobsBtn.style.color = '#64748b';
+            opsList.style.display = 'flex'; jobsList.style.display = 'none';
+        } else {
+            jobsBtn.style.background = '#2563eb'; jobsBtn.style.color = 'white';
+            opsBtn.style.background = 'none'; opsBtn.style.color = '#64748b';
+            opsList.style.display = 'none'; jobsList.style.display = 'flex';
+        }
+    }
+
+    function addHistoryRecord(type, amount, reason) {
+        historyData.push({ type: type, amount: amount, reason: reason });
+        localStorage.setItem('kinder_history', JSON.stringify(historyData));
+        renderHistory();
+    }
+
+    function addJobHistoryRecord(title, amount, comment) {
+        jobHistoryData.push({ title: title, amount: amount, comment: comment });
+        localStorage.setItem('kinder_job_history', JSON.stringify(jobHistoryData));
+        renderHistory();
+    }
+
+    function spendMoney() {
+        const amountInput = document.getElementById('spendAmount'); const amount = parseInt(amountInput.value);
+        const checkArea = document.getElementById('generatedCheckArea'); const checkDisplay = document.getElementById('checkCodeDisplay');
+        if (isNaN(amount) || amount <= 0 || amount > balance) { alert('Ошибка суммы или недостаточно средств!'); return; }
+        if (!confirm(`Вы действительно хотите списать ${amount} 💰 и создать чек перевода?`)) return;
+        let myWalletId = localStorage.getItem('kinder_wallet_id');
+        if (!myWalletId) { myWalletId = Math.floor(Math.random() * 90 + 10).toString(); localStorage.setItem('kinder_wallet_id', myWalletId); }
+        const randomId = Math.floor(Math.random() * 90 + 10);
+        const hashSource = amount + randomId + parseInt(myWalletId) + SECRET_SALT;
+        const controlSum = hashSource % 900 + 100;
+        const checkCode = `КБ-${amount}-${myWalletId}${randomId}${controlSum}`;
+        balance -= amount; addJobHistoryRecord(`Чек на ${amount} 💰`, amount, "Создан чек перевода для покупки товара"); updateDisplay();
+        checkDisplay.innerText = checkCode; checkArea.style.display = 'block'; amountInput.value = '';
+        alert('Чек успешно создан! Передайте короткий код продавцу.');
+    }
+
+    function addMoney() {
+        const amountInput = document.getElementById('addAmount'); const amount = parseInt(amountInput.value);
+        if (isNaN(amount) || amount <= 0) return;
+        const password = prompt('Введите секретный пароль для пополнения:'); if (password === null) return;
+        if (password.trim().toLowerCase() !== 'вундия') { alert('Неверный пароль! 🔒'); return; }
+        const reason = prompt('Откуда появились монеты?', 'Заработал/Подарок'); if (reason === null) return;
+        const finalReason = reason.trim() || 'Пополнение';
+        balance += amount; addHistoryRecord('add', amount, finalReason); updateDisplay(); amountInput.value = '';
+    }
+
+    function receiveCheck() {
+        const rawCode = prompt('Введите код чека от покупателя:'); if (rawCode === null) return;
+        const code = rawCode.trim().toUpperCase(); const parts = code.split('-');
+        if (parts.length !== 3 || parts[0] !== 'КБ') { alert('Ошибка: Неверный формат чека! ❌'); return; }
+        const amount = parseInt(parts[1]); const tail = parts[2];
+        if (isNaN(amount) || amount <= 0 || !tail || tail.length !== 7) { alert('Ошибка: Чек поврежден или неверная длина кода! ❌'); return; }
+        let myWalletId = localStorage.getItem('kinder_wallet_id');
+        if (!myWalletId) { myWalletId = Math.floor(Math.random() * 90 + 10).toString(); localStorage.setItem('kinder_wallet_id', myWalletId); }
+        const creatorWalletId = tail.substring(0, 2); const randomId = parseInt(tail.substring(2, 4)); const userControlSum = parseInt(tail.substring(4, 7));
+        if (creatorWalletId === myWalletId) { alert('Обман заблокирован! 🛑 Вы не можете активировать свой собственный чек!'); return; }
+        if (usedChecks.includes(tail)) { alert('Ошибка: Этот чек уже был активирован ранее! 🛑'); return; }
+        const hashSource = amount + randomId + parseInt(creatorWalletId) + SECRET_SALT; const expectedControlSum = hashSource % 900 + 100;
+        if (userControlSum !== expectedControlSum) { alert('Ошибка: Проверка подлинности не пройдена! Чек фальшивый. 🔒'); return; }
+        usedChecks.push(tail); localStorage.setItem('kinder_used_checks', JSON.stringify(usedChecks));
+        const comment = prompt('За какой товар вы принимаете оплату?', 'Продажа товара'); const finalComment = comment ? comment.trim() : 'Продажа';
+        balance += amount; addJobHistoryRecord(`Получено по чеку`, amount, `Товар: ${finalComment}`); updateDisplay();
+        alert(`Успех! Чек подлинный. На ваш счет зачислено ${amount} 💰`);
+    }
+
+    function clearHistory() {
+        const password = prompt('Введите секретный пароль для очистки истории:'); if (password === null) return;
+        if (password.trim().toLowerCase() !== 'вожатик') { alert('Неверный пароль! 🛑'); return; }
+        if (confirm('Вы уверены, что хотите полностью стереть ВСЮ историю (и операции, и работы)?')) {
+            historyData = []; jobHistoryData = []; localStorage.removeItem('kinder_history'); localStorage.removeItem('kinder_job_history'); renderHistory();
+        }
+    }
+    function renderWorkZone() {
+        const zone = document.getElementById('workZone'); if (!zone) return;
+        if (!activeJob) {
+            zone.innerHTML = `
+                <div class="form-container">
+                    <p style="font-size:14px; color:#64748b; text-align:center; margin-bottom:5px;">Заполняет работодатель:</p>
+                    <input type="text" id="jobTitleInput" placeholder="Название (например: Мытье посуды)">
+                    <div style="display:flex; gap:5px;">
+                        <input type="number" id="jobTimeInput" placeholder="Время" min="1" style="flex:2;">
+                        <select id="jobTimeUnit" style="flex:1;">
+                            <option value="sec">Сек.</option>
+                            <option value="min" selected>Мин.</option>
+                            <option value="hour">Час.</option>
+                        </select>
+                    </div>
+                    <input type="number" id="jobPayInput" placeholder="Оплата (кол-во монет)" min="1">
+                    <select id="jobPayType">
+                        <option value="once">Разово (после окончания)</option>
+                        <option value="10">Раз в 10 минут</option>
+                        <option value="30">Раз в 30 минут</option>
+                        <option value="45">Раз в 45 минут</option>
+                        <option value="60">Раз в 60 минут (в час)</option>
+                    </select>
+                    <input type="password" id="jobPassInput" placeholder="Придумайте пароль сдачи">
+                    <button class="btn-job-action" onclick="createJob()">💼 Назначить работу</button>
+                </div>`;
+        } else {
+            let totalSalary = activeJob.pay; let typeText = "Разовая"; let actionButtons = '';
+            if (activeJob.payType !== 'once') {
+                let intervalMin = parseInt(activeJob.payType);
+                totalSalary = Math.round((activeJob.pay * activeJob.totalMinutes) / intervalMin);
+                typeText = `Раз в ${intervalMin} мин (${activeJob.pay}💰 за ${intervalMin}м)`;
+                actionButtons = `<button class="btn-job-action btn-job-cancel" onclick="cancelJob()">❌ Отменить работу (с выплатой)</button>`;
+            } else {
+                actionButtons = `
+                    <button class="btn-job-action btn-job-early" onclick="earlyCompleteJob()">⚡ Выполнить досрочно</button>
+                    <button class="btn-job-action btn-job-cancel" onclick="cancelJob()">❌ Отменить (без выплаты)</button>`;
+            }
+            zone.innerHTML = `
+                <div class="job-card">
+                    <div class="job-title">${activeJob.title}</div>
+                    <div class="job-meta">Тип оплаты: <b>${typeText}</b></div>
+                    <div class="job-meta">Награда за работу: <b>${totalSalary} 💰</b></div>
+                    <div class="job-timer" id="jobCountdown">--:--</div>
+                    <div id="jobActionArea"><div style="display:flex; flex-direction:column; gap:5px; margin-top:10px;">${actionButtons}</div></div>
+                </div>`;
+            updateTimerDisplay();
+        }
+    }
+
+    function createJob() {
+        const title = document.getElementById('jobTitleInput').value.trim();
+        const timeVal = parseInt(document.getElementById('jobTimeInput').value);
+        const timeUnit = document.getElementById('jobTimeUnit').value;
+        const pay = parseInt(document.getElementById('jobPayInput').value);
+        const payType = document.getElementById('jobPayType').value;
+        const pass = document.getElementById('jobPassInput').value.trim();
+        if (!title || isNaN(timeVal) || timeVal <= 0 || isNaN(pay) || pay <= 0 || !pass) { alert('Пожалуйста, заполните все поля правильно!'); return; }
+        let ms = 0; let totalMinutes = 0;
+        if (timeUnit === 'sec') { ms = timeVal * 1000; totalMinutes = timeVal / 60; } 
+        else if (timeUnit === 'min') { ms = timeVal * 60 * 1000; totalMinutes = timeVal; } 
+        else if (timeUnit === 'hour') { ms = timeVal * 60 * 60 * 1000; totalMinutes = timeVal * 60; }
+        const endTime = Date.now() + ms;
+        activeJob = { title: title, totalMinutes: totalMinutes, durationMs: ms, pay: pay, payType: payType, password: pass.toLowerCase(), endTime: endTime, status: 'running' };
+        localStorage.setItem('kinder_active_job', JSON.stringify(activeJob));
+        renderWorkZone(); startTimer();
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!activeJob) { clearInterval(timerInterval); return; }
+            let timeLeft = activeJob.endTime - Date.now();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval); activeJob.status = 'completed';
+                localStorage.setItem('kinder_active_job', JSON.stringify(activeJob));
+                renderWorkZone(); showSubmitArea();
+            } else { updateTimerDisplay(); }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const timerEl = document.getElementById('jobCountdown'); if (!timerEl || !activeJob) return;
+        let timeLeft = activeJob.endTime - Date.now();
+        if (timeLeft <= 0) { timerEl.innerText = "Готово! 🎉"; showSubmitArea(); return; }
+        let totalSeconds = Math.floor(timeLeft / 1000);
+        let mins = Math.floor(totalSeconds / 60); let secs = totalSeconds % 60;
+        timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function showSubmitArea() {
+        const area = document.getElementById('jobActionArea'); if (!area) return;
+        area.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                <p style="font-size:13px; color:#1e293b; font-weight:600;">Покажите работу работодателю. Проверка:</p>
+                <input type="text" id="jobComment" placeholder="Комментарий работодателя">
+                <input type="password" id="jobCheckPass" placeholder="Пароль работодателя">
+                <button class="btn-job-action" style="background:#10b981;" onclick="submitJob()">💰 Сдать и получить деньги</button>
+            </div>`;
+    }
+
+    function checkActiveJobTimer() {
+        if (activeJob) {
+            if (activeJob.endTime - Date.now() > 0) { startTimer(); } 
+            else { activeJob.status = 'completed'; localStorage.setItem('kinder_active_job', JSON.stringify(activeJob)); setTimeout(() => showSubmitArea(), 100); }
+        }
+    }
+
+    function cancelJob() {
+        if (!activeJob) return;
+        if (activeJob.payType !== 'once') {
+            let intervalMin = parseInt(activeJob.payType);
+            let timePassedMs = Date.now() - (activeJob.endTime - activeJob.durationMs);
+            let minutesPassed = Math.max(0, timePassedMs / 1000 / 60);
+            let earnedSalary = Math.round((activeJob.pay * minutesPassed) / intervalMin);
+            if (earnedSalary > 0) {
+                balance += earnedSalary; 
+                addJobHistoryRecord(activeJob.title, earnedSalary, "Работа отменена досрочно (расчет за время)");
+                updateDisplay();
+                alert(`Работа отменена. Получено ${earnedSalary} 💰 за отработанное время.`);
+            } else { alert('Работа отменена. Отработано слишком мало времени.'); }
+        } else { alert('Работа полностью отменена, деньги не начислены.'); }
+        if (timerInterval) clearInterval(timerInterval); activeJob = null; localStorage.removeItem('kinder_active_job'); renderWorkZone();
+    }
+
+    function earlyCompleteJob() {
+        if (!activeJob || activeJob.payType !== 'once') return;
+        if (timerInterval) clearInterval(timerInterval); activeJob.status = 'completed';
+        localStorage.setItem('kinder_active_job', JSON.stringify(activeJob)); renderWorkZone(); showSubmitArea();
+    }
+
+    function submitJob() {
+        const userPass = document.getElementById('jobCheckPass').value.trim().toLowerCase();
+        const commentInput = document.getElementById('jobComment').value.trim();
+        if (userPass !== activeJob.password) { alert('Неверный пароль работодателя! 🔒'); return; }
+        let salary = activeJob.pay;
+        if (activeJob.payType !== 'once') {
+            let intervalMin = parseInt(activeJob.payType);
+            salary = Math.round((activeJob.pay * activeJob.totalMinutes) / intervalMin);
+        }
+        const comment = commentInput || `Выполнено отлично!`;
+        balance += salary; 
+        addJobHistoryRecord(activeJob.title, salary, comment);
+        updateDisplay();
+        alert(`Отлично! Работа сдана, получено ${salary} 💰`);
+        activeJob = null; localStorage.removeItem('kinder_active_job'); renderWorkZone();
+    }
+</script>
+</body>
+</html>
