@@ -16,9 +16,9 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 0; color: #2c3e50; overflow: hidden; }
         
-        .app-container { background: #ffffff; width: 100vw; height: 100vh; max-width: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; padding-bottom: env(safe-area-inset-bottom); }
+        .app-container { background: #ffffff; width: 100vw; height: 100vh; max-width: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
         .app-header { background: #2563eb; color: white; padding: 25px 20px 20px 20px; padding-top: calc(15px + env(safe-area-inset-top)); text-align: center; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
-        .app-content { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 15px; justify-content: flex-start; overflow-y: auto; }
+        .app-content { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 15px; justify-content: flex-start; overflow-y: auto; margin-bottom: 75px; }
         
         .bank-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 20px; padding: 20px; color: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); position: relative; overflow: hidden; }
         .card-label { font-size: 12px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; margin-bottom: 5px; }
@@ -36,15 +36,17 @@
         .btn-add { background: #10b981; }
         .btn-add:hover { background: #059669; }
         
-        .nav-buttons { display: flex; gap: 10px; margin-top: auto; padding-bottom: 5px; }
-        .btn-nav { flex: 1; padding: 14px; font-size: 15px; font-weight: 600; text-align: center; border-radius: 12px; }
+        /* Поднятые нижние кнопки навигации */
+        .nav-buttons { display: flex; gap: 10px; position: absolute; bottom: calc(25px + env(safe-area-inset-bottom)); left: 20px; right: 20px; z-index: 5; }
+        .btn-nav { flex: 1; padding: 14px; font-size: 15px; font-weight: 600; text-align: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .btn-nav-work { background: #8b5cf6; }
         .btn-nav-work:hover { background: #7c3aed; }
         .btn-nav-history { background: #64748b; }
         .btn-nav-history:hover { background: #475569; }
         
+        /* Поднятые элементы модального окна */
         .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 10; }
-        .modal-content { background: white; width: 100%; max-height: 85%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s ease; padding-bottom: calc(20px + env(safe-area-inset-bottom)); overflow-y: auto; }
+        .modal-content { background: white; width: 100%; max-height: 85%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s ease; padding-bottom: calc(35px + env(safe-area-inset-bottom)); overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
         .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; }
         .btn-close { background: none; color: #94a3b8; font-size: 24px; padding: 0; width: auto; font-weight: normal; }
@@ -69,7 +71,9 @@
         .amount-spend { color: #ef4444; font-weight: 700; }
         .reason-text { color: #334155; font-size: 14px; max-width: 180px; word-wrap: break-word; text-align: right; }
         .empty-history { text-align: center; color: #94a3b8; font-size: 14px; margin: 40px 0; }
-        .btn-clear { background: #94a3b8; padding: 10px; font-size: 14px; border-radius: 10px; width: 100%; text-align: center; }
+        
+        /* Поднятая кнопка очистки истории */
+        .btn-clear { background: #94a3b8; padding: 12px; font-size: 14px; border-radius: 10px; width: 100%; text-align: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -82,7 +86,7 @@
             <div class="card-chip"></div>
         </div>
         
-        <!-- Обновленный блок Трат (Только Чеки) -->
+        <!-- Блок Трат (Только Чеки) -->
         <div class="action-box">
             <div class="input-group" style="flex-direction: column; gap: 8px;">
                 <div style="display: flex; gap: 10px; width: 100%;">
@@ -99,21 +103,22 @@
             </div>
         </div>
         
-        <!-- Обновленный блок Пополнения -->
+        <!-- Блок Пополнения -->
         <div class="action-box">
             <div class="input-group" style="flex-direction: column; gap: 8px;">
                 <div style="display: flex; gap: 10px; width: 100%;">
                     <input type="number" id="addAmount" placeholder="Сумма" min="1">
                     <button class="btn-add" onclick="addMoney()">Пополнить</button>
                 </div>
-                <button class="btn-nav" style="background: #0284c7; width: 100%; padding: 12px;" onclick="receiveCheck()">📥 Принять Чек (От продавца)</button>
+                <button class="btn-nav" style="background: #0284c7; width: 100%; padding: 12px; position: static; box-shadow: none;" onclick="receiveCheck()">📥 Принять Чек (От продавца)</button>
             </div>
         </div>
+    </div>
 
-        <div class="nav-buttons">
-            <button class="btn-nav btn-nav-work" onclick="toggleModal('workModal', true)">💼 Работа</button>
-            <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
-        </div>
+    <!-- Навигационные кнопки внизу -->
+    <div class="nav-buttons">
+        <button class="btn-nav btn-nav-work" onclick="toggleModal('workModal', true)">💼 Работа</button>
+        <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
     </div>
 
     <!-- Модальное окно истории -->
@@ -149,22 +154,33 @@
 </div>
 
 <script>
-    // === БЛОК PWA И OFFLINE SERVICE WORKER ===
-    const CACHE_NAME = 'kinderbank-v2';
+    // === ОБНОВЛЕННЫЙ БЛОК PWA С АВТО-ОЧИСТКОЙ КЭША ===
+    const CACHE_NAME = 'kinderbank-v4'; 
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE_NAME = '${CACHE_NAME}';
             self.addEventListener('install', (e) => {
                 e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([location.pathname])));
+                self.skipWaiting();
+            });
+            self.addEventListener('activate', (e) => {
+                e.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((key) => { if(key !== CACHE_NAME) return caches.delete(key); }))));
             });
             self.addEventListener('fetch', (e) => {
                 e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request).catch(() => caches.match(location.pathname))));
             });
         `;
         const blob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('PWA Error:', err));
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).then((reg) => {
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { location.reload(); }
+                });
+            });
+        }).catch(err => console.log('PWA Error:', err));
     }
-    // =========================================
+    // =================================================
 
     let balance = parseInt(localStorage.getItem('kinder_balance')) || 0;
     let historyData = JSON.parse(localStorage.getItem('kinder_history')) || [];
@@ -276,7 +292,10 @@
         const hashSource = amount + randomId + parseInt(myWalletId) + SECRET_SALT;
         const controlSum = hashSource % 900 + 100;
         const checkCode = `КБ-${amount}-${myWalletId}${randomId}${controlSum}`;
-        balance -= amount; addJobHistoryRecord(`Чек на ${amount} 💰`, amount, "Создан чек перевода для покупки товара"); updateDisplay();
+        
+        balance -= amount; 
+        addHistoryRecord('spend', amount, `Создан чек на перевод`); // Запись идет в "Операции"
+        updateDisplay();
         checkDisplay.innerText = checkCode; checkArea.style.display = 'block'; amountInput.value = '';
         alert('Чек успешно создан! Передайте короткий код продавцу.');
     }
@@ -284,7 +303,7 @@
     function addMoney() {
         const amountInput = document.getElementById('addAmount'); const amount = parseInt(amountInput.value);
         if (isNaN(amount) || amount <= 0) return;
-        const password = prompt('Введите секретный пароль для пополнения:'); if (password === null) return;
+        const password = prompt('Введите секретного пароля для пополнения:'); if (password === null) return;
         if (password.trim().toLowerCase() !== 'вундия') { alert('Неверный пароль! 🔒'); return; }
         const reason = prompt('Откуда появились монеты?', 'Заработал/Подарок'); if (reason === null) return;
         const finalReason = reason.trim() || 'Пополнение';
@@ -294,8 +313,8 @@
     function receiveCheck() {
         const rawCode = prompt('Введите код чека от покупателя:'); if (rawCode === null) return;
         const code = rawCode.trim().toUpperCase(); const parts = code.split('-');
-        if (parts.length !== 3 || parts[0] !== 'КБ') { alert('Ошибка: Неверный формат чека! ❌'); return; }
-        const amount = parseInt(parts[1]); const tail = parts[2];
+        if (parts.length !== 3 || parts !== 'КБ') { alert('Ошибка: Неверный формат чека! ❌'); return; }
+        const amount = parseInt(parts); const tail = parts;
         if (isNaN(amount) || amount <= 0 || !tail || tail.length !== 7) { alert('Ошибка: Чек поврежден или неверная длина кода! ❌'); return; }
         let myWalletId = localStorage.getItem('kinder_wallet_id');
         if (!myWalletId) { myWalletId = Math.floor(Math.random() * 90 + 10).toString(); localStorage.setItem('kinder_wallet_id', myWalletId); }
@@ -304,9 +323,13 @@
         if (usedChecks.includes(tail)) { alert('Ошибка: Этот чек уже был активирован ранее! 🛑'); return; }
         const hashSource = amount + randomId + parseInt(creatorWalletId) + SECRET_SALT; const expectedControlSum = hashSource % 900 + 100;
         if (userControlSum !== expectedControlSum) { alert('Ошибка: Проверка подлинности не пройдена! Чек фальшивый. 🔒'); return; }
+        
         usedChecks.push(tail); localStorage.setItem('kinder_used_checks', JSON.stringify(usedChecks));
         const comment = prompt('За какой товар вы принимаете оплату?', 'Продажа товара'); const finalComment = comment ? comment.trim() : 'Продажа';
-        balance += amount; addJobHistoryRecord(`Получено по чеку`, amount, `Товар: ${finalComment}`); updateDisplay();
+        
+        balance += amount; 
+        addHistoryRecord('add', amount, `Получено по чеку: ${finalComment}`); // Запись идет в "Операции"
+        updateDisplay();
         alert(`Успех! Чек подлинный. На ваш счет зачислено ${amount} 💰`);
     }
 
