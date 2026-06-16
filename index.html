@@ -15,11 +15,9 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* Добавили твою картинку пузырей на задний фон всего приложения */
+        /* Твой неоновый фон с пузырями на весь экран */
         body { 
-            background-image: url('https://unsplash.com'); 
-            background-size: cover;
-            background-position: center;
+            background: #1e1b4b url('https://unsplash.com') center/cover no-repeat; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -29,11 +27,11 @@
             overflow: hidden; 
         }
         
-        /* Сделали подложку приложения слегка прозрачной и добавили размытие blur(5px) */
+        /* Прозрачная подложка с мягким стеклянным размытием */
         .app-container { 
-            background: rgba(255, 255, 255, 0.75); 
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.78); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             width: 100vw; 
             height: 100vh; 
             max-width: 100%; 
@@ -61,12 +59,11 @@
         .balance { font-size: 30px; font-weight: 700; }
         .card-chip { width: 35px; height: 25px; background: #fbbf24; border-radius: 4px; margin-top: 20px; opacity: 0.8; }
         
-        /* Сделали блоки трат и пополнений слегка полупрозрачными для красоты */
         .action-box { background: rgba(248, 250, 252, 0.8); padding: 12px; border-radius: 16px; border: 1px solid rgba(237, 242, 247, 0.6); }
         .input-group { display: flex; gap: 10px; width: 100%; }
         input, select { flex: 1; min-width: 0; padding: 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; font-weight: 600; text-align: center; background: white; }
         input:focus, select:focus { border-color: #3b82f6; }
-        /* Упругая интерактивная анимация при взаимодействии с кнопками */
+        /* Физический упругий отклик кнопок при клике */
         button { padding: 12px 15px; font-size: 15px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s; color: white; white-space: nowrap; flex-shrink: 0; }
         button:active, .btn-whats-new:active { transform: scale(0.92); }
         
@@ -102,11 +99,10 @@
         .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 27, 75, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; gap: 15px; text-align: center; padding: 20px; }
         .go-title { font-size: 28px; font-weight: 900; color: #ef4444; }
         .go-result { font-size: 18px; font-weight: 700; color: #cbd5e1; }
-        .go-record { font-size: 20px; font-weight: 800; color: #fbbf24; background: rgba(251,187,36,0.1); padding: 6px 15px; border-radius: 20px; border: 1px dashed #fbbf24; margin-bottom: 5px; }
         .btn-game { width: 80%; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         
         .form-container { display: flex; flex-direction: column; gap: 10px; }
-        .job-card { background: #f5f3ff; border: 2px dashed #c084fc; padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
+        .job-card { background: rgba(245, 243, 255, 0.95); border: 2px dashed #c084fc; padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
         .job-title { font-size: 18px; font-weight: 700; color: #6b21a8; }
         .job-meta { font-size: 14px; color: #581c87; font-weight: 500; }
         .job-timer { font-size: 26px; font-weight: 800; color: #dc2626; background: white; padding: 8px; border-radius: 10px; border: 1px solid #f3e8ff; margin: 5px 0; font-variant-numeric: tabular-nums; }
@@ -184,12 +180,12 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 10px;">
                 <div class="update-item">
-                    <div class="update-version">Версия 8.1 (Текущая) 🌌</div>
-                    <div class="update-text">• Космический дизайн: Добавлен красивый неоновый фон с пузырями и эффектом размытия заднего плана!<br>• Исправлен баг: Починен рендеринг экрана игры, рекорд теперь отображается без ошибок.</div>
+                    <div class="update-version">Версия 10.0 (Текущая) 🌌</div>
+                    <div class="update-text">• Космический дизайн: Интегрирован неоновый фон с пузырями и эффектом размытия заднего плана!<br>• Фиксация рекорда: Счётчик рекорда перенесён наверх и сохраняется на лету при каждой пойманной монетке!</div>
                 </div>
                 <div class="update-item" style="border-left-color: #3b82f6;">
                     <div class="update-version">Версия 8.0 🎮</div>
-                    <div class="update-text">• Интерактивное развлечение: Добавлена встроенная мини-игра «Поймай монету» со звуками и личными рекордами! Для входа нажми на значок 💰 на балансе.</div>
+                    <div class="update-text">• Интерактивное развлечение: Встроена игра «Поймай монету» со звуками денег. Вход по клику на 💰 возле баланса.</div>
                 </div>
             </div>
         </div>
@@ -223,10 +219,13 @@
         </div>
     </div>
 
-    <!-- Экран мини-игры «Поймай монету» -->
+    <!-- Экран мини-игры «Поймай монету» (С рекордом наверху) -->
     <div class="game-overlay" id="gameOverlay">
         <div class="game-header">
-            <div class="game-score">Счёт: <span id="liveScore">0</span> 💰</div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div class="game-score">Счёт: <span id="liveScore">0</span> 💰</div>
+                <div style="font-size: 14px; font-weight: 700; color: #fbbf24;">🏆 Рекорд: <span id="liveRecord">0</span></div>
+            </div>
             <button style="background: #ef4444; padding: 8px 15px; font-size: 14px;" onclick="closeGame()">Выйти</button>
         </div>
         <div class="game-area" id="gameArea">
@@ -236,7 +235,6 @@
             <div class="game-over-screen" id="gameOverScreen">
                 <div class="go-title">ИГРА ОКОНЧЕНА 🛑</div>
                 <div class="go-result" id="finalScoreText">Вы поймали: 0 монет!</div>
-                <div class="go-record">🏆 Рекорд: <span id="recordDisplay">0</span></div>
                 <button class="btn-game" style="background: #10b981;" onclick="resetAndStartGame()">🔄 Играть снова</button>
                 <button class="btn-game" style="background: #64748b;" onclick="closeGame()">🚪 Выйти в банк</button>
             </div>
@@ -246,7 +244,7 @@
 
 <script>
     // === АБСОЛЮТНО АВТОНОМНЫЙ БЛОК PWA (СТРАТЕГИЯ CACHE-FIRST) ===
-    const CACHE_NAME = 'kinderbank-v9'; // Обновили версию до v9 для автосброса старого кэша
+    const CACHE_NAME = 'kinderbank-v10'; // Версия v10 принудительно обновит кэш на всех устройствах
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE_NAME = '${CACHE_NAME}';
@@ -593,8 +591,6 @@
                 <button class="btn-job-action" style="background:#10b981;" onclick="submitJob()">💰 Сдать и получить деньги</button>
             </div>`;
     }
-
-    // (Продолжение функций проверки, отмены и сдачи склеится с началом Части 5.2)
     function checkActiveJobTimer() {
         if (activeJob) {
             if (activeJob.endTime - Date.now() > 0) { startTimer(); } 
@@ -656,7 +652,7 @@
     const gameOverScreen = document.getElementById('gameOverScreen');
     const liveScoreEl = document.getElementById('liveScore');
     const finalScoreText = document.getElementById('finalScoreText');
-    const recordDisplay = document.getElementById('recordDisplay');
+    const liveRecordEl = document.getElementById('liveRecord');
 
     gameBasket.addEventListener('touchstart', (e) => { isDraggingBasket = true; e.preventDefault(); }, {passive: false});
     gameArea.addEventListener('touchmove', (e) => {
@@ -680,6 +676,7 @@
 
     function openGame() {
         gameOverlay.style.display = 'flex';
+        liveRecordEl.innerText = parseInt(localStorage.getItem('kinder_game_record')) || 0;
         resetAndStartGame();
     }
 
@@ -691,6 +688,7 @@
     function resetAndStartGame() {
         score = 0; coinSpeed = 4; basketX = 50; coinY = -40; dropNewCoin();
         liveScoreEl.innerText = score;
+        liveRecordEl.innerText = parseInt(localStorage.getItem('kinder_game_record')) || 0;
         gameBasket.style.left = basketX + '%';
         gameOverScreen.style.display = 'none';
         gameActive = true;
@@ -712,19 +710,19 @@
         if (coinY >= areaHeight - 65 && coinY <= areaHeight - 25) {
             if (Math.abs(coinX - basketX) <= 12) {
                 score++; liveScoreEl.innerText = score;
+                
+                let currentRecord = parseInt(localStorage.getItem('kinder_game_record')) || 0;
+                if (score > currentRecord) {
+                    localStorage.setItem('kinder_game_record', score);
+                    liveRecordEl.innerText = score;
+                }
+                
                 playSound('success'); coinSpeed += 0.15; dropNewCoin();
             }
         }
 
         if (coinY >= areaHeight) {
             gameActive = false; clearInterval(gameLoopInterval); playSound('error');
-            
-            let currentRecord = parseInt(localStorage.getItem('kinder_game_record')) || 0;
-            if (score > currentRecord) {
-                currentRecord = score; localStorage.setItem('kinder_game_record', currentRecord);
-            }
-            
-            recordDisplay.innerText = currentRecord;
             finalScoreText.innerText = `Вы поймали: ${score} монет!`;
             gameOverScreen.style.display = 'flex';
         }
