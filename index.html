@@ -14,40 +14,68 @@
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 0; color: #2c3e50; overflow: hidden; }
         
-        /* Замените этот блок в Части 2 */
-.nav-buttons { 
-    display: flex; 
-    gap: 12px; 
-    width: 100%; 
-    margin-top: 10px; 
-    /* ИСПРАВЛЕНО: увеличили базовый отступ и добавили безопасную зону safe-area для айфонов */
-    margin-bottom: calc(40px + env(safe-area-inset-bottom)); 
-}
-
-        .app-header { background: #2563eb; color: white; padding: 25px 20px 20px 20px; padding-top: calc(15px + env(safe-area-inset-top)); text-align: center; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; flex-shrink: 0; }
+        /* Добавили твою картинку пузырей на задний фон всего приложения */
+        body { 
+            background-image: url('https://unsplash.com'); 
+            background-size: cover;
+            background-position: center;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 0; 
+            color: #2c3e50; 
+            overflow: hidden; 
+        }
         
-        .app-content { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 15px; justify-content: flex-start; overflow-y: auto; }
+        /* Сделали подложку приложения слегка прозрачной и добавили размытие blur(5px) */
+        .app-container { 
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 100vw; 
+            height: 100vh; 
+            max-width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            position: relative; 
+        }
+        
+        /* Постоянная плавная анимация текста в шапке банка */
+        .app-header { background: #2563eb; color: white; padding: 20px 20px 15px 20px; padding-top: calc(15px + env(safe-area-inset-top)); text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 1px; flex-shrink: 0; animation: headerPulse 3s infinite ease-in-out; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        
+        @keyframes headerPulse {
+            0% { transform: scale(1); text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+            50% { transform: scale(1.03); color: #fef08a; text-shadow: 0 0 15px rgba(254,240,138,0.6); }
+            100% { transform: scale(1); text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+        }
+        
+        .app-content { padding: 15px 20px; flex: 1; display: flex; flex-direction: column; gap: 12px; justify-content: flex-start; overflow-y: auto; }
+        
+        .btn-whats-new { background: rgba(239, 246, 255, 0.85); color: #1d4ed8; padding: 8px 12px; font-size: 13px; font-weight: 700; border-radius: 20px; border: 1px solid #bfdbfe; width: max-content; margin: 0 auto 5px auto; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(37,99,235,0.06); transition: all 0.2s ease; }
         
         .bank-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 20px; padding: 20px; color: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); position: relative; overflow: hidden; }
         .card-label { font-size: 12px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; margin-bottom: 5px; }
         .balance { font-size: 30px; font-weight: 700; }
         .card-chip { width: 35px; height: 25px; background: #fbbf24; border-radius: 4px; margin-top: 20px; opacity: 0.8; }
         
-        .action-box { background: #f8fafc; padding: 12px; border-radius: 16px; border: 1px solid #edf2f7; }
+        /* Сделали блоки трат и пополнений слегка полупрозрачными для красоты */
+        .action-box { background: rgba(248, 250, 252, 0.8); padding: 12px; border-radius: 16px; border: 1px solid rgba(237, 242, 247, 0.6); }
         .input-group { display: flex; gap: 10px; width: 100%; }
         input, select { flex: 1; min-width: 0; padding: 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; font-weight: 600; text-align: center; background: white; }
         input:focus, select:focus { border-color: #3b82f6; }
-        button { padding: 12px 15px; font-size: 15px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; color: white; white-space: nowrap; flex-shrink: 0; }
-        button:active { transform: scale(0.97); }
+        /* Упругая интерактивная анимация при взаимодействии с кнопками */
+        button { padding: 12px 15px; font-size: 15px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s; color: white; white-space: nowrap; flex-shrink: 0; }
+        button:active, .btn-whats-new:active { transform: scale(0.92); }
+        
         .btn-spend { background: #ef4444; }
         .btn-spend:hover { background: #dc2626; }
         .btn-add { background: #10b981; }
         .btn-add:hover { background: #059669; }
         
-        /* Кнопки меню теперь стоят в обычном потоке, никуда не уплывают */
-        .nav-buttons { display: flex; gap: 12px; width: 100%; margin-top: 10px; margin-bottom: 30px; }
+        .nav-buttons { display: flex; gap: 12px; width: 100%; margin-top: 5px; margin-bottom: 20px; }
         .btn-nav { flex: 1; padding: 16px; font-size: 16px; font-weight: 700; text-align: center; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
         .btn-nav-work { background: #8b5cf6; }
         .btn-nav-work:hover { background: #7c3aed; }
@@ -55,10 +83,27 @@
         .btn-nav-history:hover { background: #334155; }
         
         .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 10; }
-        .modal-content { background: white; width: 100%; max-height: 85%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s ease; padding-bottom: calc(30px + env(safe-area-inset-bottom)); overflow-y: auto; }
+        .modal-content { background: white; width: 100%; max-height: 85%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding-bottom: calc(30px + env(safe-area-inset-bottom)); overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
         .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; }
         .btn-close { background: none; color: #94a3b8; font-size: 24px; padding: 0; width: auto; font-weight: normal; }
+        
+        .update-item { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 10px 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .update-version { font-size: 14px; font-weight: 700; color: #1d4ed8; }
+        .update-text { font-size: 13px; color: #475569; line-height: 1.4; }
+        
+        /* === СТИЛИ МИНИ-ИГРЫ «ПОЙМАЙ МОНЕТУ» === */
+        .game-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1e1b4b; display: none; flex-direction: column; z-index: 20; color: white; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); }
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .game-score { font-size: 20px; font-weight: 800; color: #fbbf24; }
+        .game-area { flex: 1; background: linear-gradient(to bottom, #1e1b4b 0%, #312e81 100%); border-radius: 20px; position: relative; overflow: hidden; border: 2px solid #4338ca; }
+        .game-coin { position: absolute; font-size: 28px; width: 30px; height: 30px; top: -40px; left: 50%; will-change: top; }
+        .game-basket { position: absolute; font-size: 40px; width: 60px; height: 50px; bottom: 15px; left: 50%; transform: translateX(-50%); touch-action: none; text-align: center; line-height: 50px; will-change: left; }
+        .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 27, 75, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; gap: 15px; text-align: center; padding: 20px; }
+        .go-title { font-size: 28px; font-weight: 900; color: #ef4444; }
+        .go-result { font-size: 18px; font-weight: 700; color: #cbd5e1; }
+        .go-record { font-size: 20px; font-weight: 800; color: #fbbf24; background: rgba(251,187,36,0.1); padding: 6px 15px; border-radius: 20px; border: 1px dashed #fbbf24; margin-bottom: 5px; }
+        .btn-game { width: 80%; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         
         .form-container { display: flex; flex-direction: column; gap: 10px; }
         .job-card { background: #f5f3ff; border: 2px dashed #c084fc; padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
@@ -73,7 +118,7 @@
         .btn-job-early:hover { background: #2563eb; }
         
         .history-list { display: flex; flex-direction: column; gap: 8px; }
-        .history-item { background: #f8fafc; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #cbd5e1; }
+        .history-item { background: rgba(248, 250, 252, 0.9); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #cbd5e1; }
         .item-add { border-left-color: #10b981; }
         .item-spend { border-left-color: #ef4444; }
         .amount-add { color: #10b981; font-weight: 700; }
@@ -87,11 +132,12 @@
 <div class="app-container">
     <div class="app-header">КиндерБанк</div>
     
-    <!-- Кнопки навигации перенесены внутрь основного скролла, сразу под формы -->
+    <button class="btn-whats-new" onclick="toggleModal('updatesModal', true)">📢 Что нового?</button>
+    
     <div class="app-content">
         <div class="bank-card">
             <div class="card-label">Текущий баланс</div>
-            <div class="balance" id="balanceDisplay">0 💰</div>
+            <div class="balance" id="balanceDisplay">0 <span id="startGameBtn" style="cursor:pointer; display:inline-block; animation: headerPulse 2s infinite ease-in-out;" onclick="openGame()">💰</span></div>
             <div class="card-chip"></div>
         </div>
         
@@ -123,29 +169,45 @@
             </div>
         </div>
 
-        <!-- Кнопки теперь отображаются ТУТ, ниже будет просто белый фон -->
         <div class="nav-buttons">
             <button class="btn-nav btn-nav-work" onclick="toggleModal('workModal', true)">💼 Работа</button>
             <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
         </div>
     </div>
 
-    <!-- Модальное окно истории -->
+    <!-- Модальное окно истории обновлений -->
+    <div class="modal-overlay" id="updatesModal" onclick="if(event.target===this) toggleModal('updatesModal', false)">
+        <div class="modal-content" id="updatesContent">
+            <div class="modal-header">
+                <div class="modal-title">История обновлений</div>
+                <button class="btn-close" onclick="toggleModal('updatesModal', false)">✕</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 10px;">
+                <div class="update-item">
+                    <div class="update-version">Версия 8.1 (Текущая) 🌌</div>
+                    <div class="update-text">• Космический дизайн: Добавлен красивый неоновый фон с пузырями и эффектом размытия заднего плана!<br>• Исправлен баг: Починен рендеринг экрана игры, рекорд теперь отображается без ошибок.</div>
+                </div>
+                <div class="update-item" style="border-left-color: #3b82f6;">
+                    <div class="update-version">Версия 8.0 🎮</div>
+                    <div class="update-text">• Интерактивное развлечение: Добавлена встроенная мини-игра «Поймай монету» со звуками и личными рекордами! Для входа нажми на значок 💰 на балансе.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно истории операций -->
     <div class="modal-overlay" id="historyModal" onclick="if(event.target===this) toggleModal('historyModal', false)">
         <div class="modal-content" id="historyContent">
             <div class="modal-header">
                 <div class="modal-title">История</div>
                 <button class="btn-close" onclick="toggleModal('historyModal', false)">✕</button>
             </div>
-            
             <div style="display: flex; gap: 5px; background: #f1f5f9; padding: 4px; border-radius: 10px; flex-shrink:0;">
                 <button id="tabOpsBtn" style="flex: 1; padding: 8px; font-size: 13px; background: #2563eb; color: white;" onclick="switchHistoryTab('ops')">💰 Операции</button>
                 <button id="tabJobsBtn" style="flex: 1; padding: 8px; font-size: 13px; background: none; color: #64748b;" onclick="switchHistoryTab('jobs')">💼 Работы</button>
             </div>
-
             <div class="history-list" id="historyList"></div>
             <div class="history-list" id="jobHistoryList" style="display: none;"></div>
-            
             <button class="btn-clear" onclick="clearHistory()">🗑️ Очистить всю историю</button>
         </div>
     </div>
@@ -160,74 +222,63 @@
             <div id="workZone"></div>
         </div>
     </div>
+
+    <!-- Экран мини-игры «Поймай монету» -->
+    <div class="game-overlay" id="gameOverlay">
+        <div class="game-header">
+            <div class="game-score">Счёт: <span id="liveScore">0</span> 💰</div>
+            <button style="background: #ef4444; padding: 8px 15px; font-size: 14px;" onclick="closeGame()">Выйти</button>
+        </div>
+        <div class="game-area" id="gameArea">
+            <div class="game-coin" id="gameCoin">💰</div>
+            <div class="game-basket" id="gameBasket">🏧</div>
+            
+            <div class="game-over-screen" id="gameOverScreen">
+                <div class="go-title">ИГРА ОКОНЧЕНА 🛑</div>
+                <div class="go-result" id="finalScoreText">Вы поймали: 0 монет!</div>
+                <div class="go-record">🏆 Рекорд: <span id="recordDisplay">0</span></div>
+                <button class="btn-game" style="background: #10b981;" onclick="resetAndStartGame()">🔄 Играть снова</button>
+                <button class="btn-game" style="background: #64748b;" onclick="closeGame()">🚪 Выйти в банк</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-       // === АБСОЛЮТНО АВТОНОМНЫЙ БЛОК PWA (СТРАТЕГИЯ CACHE-FIRST) ===
-    const CACHE_NAME = 'kinderbank-v8'; // Подняли версию до v7 для принудительного обновления у всех
-    
+    // === АБСОЛЮТНО АВТОНОМНЫЙ БЛОК PWA (СТРАТЕГИЯ CACHE-FIRST) ===
+    const CACHE_NAME = 'kinderbank-v9'; // Обновили версию до v9 для автосброса старого кэша
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE_NAME = '${CACHE_NAME}';
-            
-            // При установке намертво заносим текущую страницу в память
             self.addEventListener('install', (e) => {
-                e.waitUntil(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        return cache.add(self.location.origin + self.location.pathname);
-                    })
-                );
+                e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.add(self.location.origin + self.location.pathname)));
                 self.skipWaiting();
             });
-
-            // Чистим старый мусор, если он остался
             self.addEventListener('activate', (e) => {
-                e.waitUntil(
-                    caches.keys().then((keys) => Promise.all(
-                        keys.map((key) => { if (key !== CACHE_NAME) return caches.delete(key); })
-                    ))
-                );
+                e.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((key) => { if (key !== CACHE_NAME) return caches.delete(key); }))));
                 return self.clients.claim();
             });
-
-            // ЖЕСТКАЯ ДИРЕКТИВА: Всегда отдавать из кэша. Если сети нет — сайт всё равно откроется!
             self.addEventListener('fetch', (e) => {
-                // Игнорируем технические запросы браузера (например, к chrome-extension)
                 if (!e.request.url.startsWith('http')) return;
-
                 e.respondWith(
                     caches.match(e.request).then((cachedResponse) => {
-                        if (cachedResponse) {
-                            // Возвращаем из кэша мгновенно
-                            return cachedResponse;
-                        }
-                        // Если в кэше нет (например, первый запуск), берем из сети
+                        if (cachedResponse) return cachedResponse;
                         return fetch(e.request);
-                    }).catch(() => {
-                        // Если сеть упала, а запроса нет в кэше — принудительно отдаем главную страницу
-                        return caches.match(self.location.origin + self.location.pathname);
-                    })
+                    }).catch(() => caches.match(self.location.origin + self.location.pathname))
                 );
             });
         `;
-        
-        // Создаем изолированный технический blob-файл для регистрации воркера
         const blob = new Blob([swCode], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        
-        navigator.serviceWorker.register(swUrl).then((reg) => {
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).then((reg) => {
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        location.reload(); // Перезагружаем для применения новой брони офлайна
-                    }
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { location.reload(); }
                 });
             });
         }).catch(err => console.log('PWA Offline Error:', err));
     }
     // =============================================================
-
 
     let balance = parseInt(localStorage.getItem('kinder_balance')) || 0;
     let historyData = JSON.parse(localStorage.getItem('kinder_history')) || [];
@@ -244,7 +295,7 @@
     checkActiveJobTimer();
 
     function updateDisplay() {
-        document.getElementById('balanceDisplay').innerText = balance.toLocaleString() + ' 💰';
+        document.getElementById('balanceDisplay').innerHTML = balance.toLocaleString() + ' <span id="startGameBtn" style="cursor:pointer; display:inline-block; animation: headerPulse 2s infinite ease-in-out;" onclick="openGame()">💰</span>';
         localStorage.setItem('kinder_balance', balance);
     }
 
@@ -543,6 +594,7 @@
             </div>`;
     }
 
+    // (Продолжение функций проверки, отмены и сдачи склеится с началом Части 5.2)
     function checkActiveJobTimer() {
         if (activeJob) {
             if (activeJob.endTime - Date.now() > 0) { startTimer(); } 
@@ -590,6 +642,92 @@
         playSound('success');
         alert(`Отлично! Работа сдана, получено ${salary} 💰`);
         activeJob = null; localStorage.removeItem('kinder_active_job'); renderWorkZone();
+    }
+
+    // === ДВИЖОК МИНИ-ИГРЫ «ПОЙМАЙ МОНЕТУ» ===
+    let gameActive = false, score = 0;
+    let coinX = 0, coinY = -40, basketX = 50, coinSpeed = 3;
+    let gameLoopInterval = null, isDraggingBasket = false;
+
+    const gameOverlay = document.getElementById('gameOverlay');
+    const gameArea = document.getElementById('gameArea');
+    const gameCoin = document.getElementById('gameCoin');
+    const gameBasket = document.getElementById('gameBasket');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const liveScoreEl = document.getElementById('liveScore');
+    const finalScoreText = document.getElementById('finalScoreText');
+    const recordDisplay = document.getElementById('recordDisplay');
+
+    gameBasket.addEventListener('touchstart', (e) => { isDraggingBasket = true; e.preventDefault(); }, {passive: false});
+    gameArea.addEventListener('touchmove', (e) => {
+        if (!isDraggingBasket || !gameActive) return;
+        const rect = gameArea.getBoundingClientRect();
+        let pct = ((e.touches.clientX - rect.left) / rect.width) * 100;
+        basketX = Math.max(5, Math.min(95, pct));
+        gameBasket.style.left = basketX + '%';
+    }, {passive: true});
+    window.addEventListener('touchend', () => { isDraggingBasket = false; });
+
+    gameBasket.addEventListener('mousedown', () => { isDraggingBasket = true; });
+    gameArea.addEventListener('mousemove', (e) => {
+        if (!isDraggingBasket || !gameActive) return;
+        const rect = gameArea.getBoundingClientRect();
+        let pct = ((e.clientX - rect.left) / rect.width) * 100;
+        basketX = Math.max(5, Math.min(95, pct));
+        gameBasket.style.left = basketX + '%';
+    });
+    window.addEventListener('mouseup', () => { isDraggingBasket = false; });
+
+    function openGame() {
+        gameOverlay.style.display = 'flex';
+        resetAndStartGame();
+    }
+
+    function closeGame() {
+        gameActive = false; if (gameLoopInterval) clearInterval(gameLoopInterval);
+        gameOverlay.style.display = 'none'; playSound('click');
+    }
+
+    function resetAndStartGame() {
+        score = 0; coinSpeed = 4; basketX = 50; coinY = -40; dropNewCoin();
+        liveScoreEl.innerText = score;
+        gameBasket.style.left = basketX + '%';
+        gameOverScreen.style.display = 'none';
+        gameActive = true;
+        if (gameLoopInterval) clearInterval(gameLoopInterval);
+        gameLoopInterval = setInterval(gameUpdate, 10);
+        playSound('click');
+    }
+
+    function dropNewCoin() {
+        coinX = Math.floor(Math.random() * 85) + 5; coinY = -40;
+        gameCoin.style.left = coinX + '%'; gameCoin.style.top = coinY + 'px';
+    }
+
+    function gameUpdate() {
+        if (!gameActive) return;
+        coinY += coinSpeed; gameCoin.style.top = coinY + 'px';
+        const areaHeight = gameArea.clientHeight;
+
+        if (coinY >= areaHeight - 65 && coinY <= areaHeight - 25) {
+            if (Math.abs(coinX - basketX) <= 12) {
+                score++; liveScoreEl.innerText = score;
+                playSound('success'); coinSpeed += 0.15; dropNewCoin();
+            }
+        }
+
+        if (coinY >= areaHeight) {
+            gameActive = false; clearInterval(gameLoopInterval); playSound('error');
+            
+            let currentRecord = parseInt(localStorage.getItem('kinder_game_record')) || 0;
+            if (score > currentRecord) {
+                currentRecord = score; localStorage.setItem('kinder_game_record', currentRecord);
+            }
+            
+            recordDisplay.innerText = currentRecord;
+            finalScoreText.innerText = `Вы поймали: ${score} монет!`;
+            gameOverScreen.style.display = 'flex';
+        }
     }
 </script>
 </body>
