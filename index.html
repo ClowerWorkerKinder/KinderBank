@@ -163,33 +163,71 @@
 </div>
 
 <script>
-    // === ОБНОВЛЕННЫЙ БЛОК PWA С АВТО-ОЧИСТКОЙ КЭША ===
-    const CACHE_NAME = 'kinderbank-v7'; 
+       // === АБСОЛЮТНО АВТОНОМНЫЙ БЛОК PWA (СТРАТЕГИЯ CACHE-FIRST) ===
+    const CACHE_NAME = 'kinderbank-v8'; // Подняли версию до v7 для принудительного обновления у всех
+    
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE_NAME = '${CACHE_NAME}';
+            
+            // При установке намертво заносим текущую страницу в память
             self.addEventListener('install', (e) => {
-                e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([location.pathname])));
+                e.waitUntil(
+                    caches.open(CACHE_NAME).then((cache) => {
+                        return cache.add(self.location.origin + self.location.pathname);
+                    })
+                );
                 self.skipWaiting();
             });
+
+            // Чистим старый мусор, если он остался
             self.addEventListener('activate', (e) => {
-                e.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((key) => { if(key !== CACHE_NAME) return caches.delete(key); }))));
+                e.waitUntil(
+                    caches.keys().then((keys) => Promise.all(
+                        keys.map((key) => { if (key !== CACHE_NAME) return caches.delete(key); })
+                    ))
+                );
+                return self.clients.claim();
             });
+
+            // ЖЕСТКАЯ ДИРЕКТИВА: Всегда отдавать из кэша. Если сети нет — сайт всё равно откроется!
             self.addEventListener('fetch', (e) => {
-                e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request).catch(() => caches.match(location.pathname))));
+                // Игнорируем технические запросы браузера (например, к chrome-extension)
+                if (!e.request.url.startsWith('http')) return;
+
+                e.respondWith(
+                    caches.match(e.request).then((cachedResponse) => {
+                        if (cachedResponse) {
+                            // Возвращаем из кэша мгновенно
+                            return cachedResponse;
+                        }
+                        // Если в кэше нет (например, первый запуск), берем из сети
+                        return fetch(e.request);
+                    }).catch(() => {
+                        // Если сеть упала, а запроса нет в кэше — принудительно отдаем главную страницу
+                        return caches.match(self.location.origin + self.location.pathname);
+                    })
+                );
             });
         `;
+        
+        // Создаем изолированный технический blob-файл для регистрации воркера
         const blob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).then((reg) => {
+        const swUrl = URL.createObjectURL(blob);
+        
+        navigator.serviceWorker.register(swUrl).then((reg) => {
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { location.reload(); }
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        location.reload(); // Перезагружаем для применения новой брони офлайна
+                    }
                 });
             });
-        }).catch(err => console.log('PWA Error:', err));
+        }).catch(err => console.log('PWA Offline Error:', err));
     }
-    // =================================================
+    // =============================================================
+
 
     let balance = parseInt(localStorage.getItem('kinder_balance')) || 0;
     let historyData = JSON.parse(localStorage.getItem('kinder_history')) || [];
