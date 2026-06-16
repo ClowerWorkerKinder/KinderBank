@@ -149,7 +149,8 @@
         .amount-spend { color: #ef4444; font-weight: 700; }
         .reason-text { color: #334155; font-size: 14px; max-width: 180px; word-wrap: break-word; text-align: right; }
         .empty-history { text-align: center; color: #94a3b8; font-size: 14px; margin: 40px 0; }
-        .btn-clear { background: #94a3b8; padding: 14px; font-size: 14px; border-radius: 12px; width: 100%; text-align: center; margin-top: auto; flex-shrink: 0; margin-bottom: 5px; }    </style>
+        .btn-clear { background: #94a3b8; padding: 14px; font-size: 14px; border-radius: 12px; width: 100%; text-align: center; margin-top: auto; flex-shrink: 0; margin-bottom: 5px; }
+    </style>
 </head>
 <body>
 <div class="app-container">
@@ -164,7 +165,7 @@
             <div class="card-chip"></div>
         </div>
         
-        <!-- Блок Трат (Только Чеки) -->
+        <!-- Блок Трат -->
         <div class="action-box">
             <div class="input-group" style="flex-direction: column; gap: 8px;">
                 <div style="display: flex; gap: 10px; width: 100%;">
@@ -181,7 +182,7 @@
             </div>
         </div>
         
-        <!-- Блок Пополнения -->
+        <!-- Блок Пополнения и Чеков -->
         <div class="action-box">
             <div class="input-group" style="flex-direction: column; gap: 8px;">
                 <div style="display: flex; gap: 10px; width: 100%;">
@@ -197,7 +198,6 @@
             <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
         </div>
 
-        <!-- Кнопка Вклада вынесена отдельным сочным блоком под навигацию -->
         <button class="btn-nav-deposit" onclick="toggleModal('depositModal', true); renderDepositZone();">🏦 Открыть / Проверить вклад</button>
     </div>
 
@@ -210,18 +210,14 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 10px;">
                 <div class="update-item" style="border-left-color: #eab308;">
-                    <div class="update-version" style="color: #ca8a04;">Версия 13.0 (Текущая) 📈</div>
-                    <div class="update-text">• <b>Инвестиции</b>: Запущена система вкладов под 5% в час на 5 часов с поддержкой сложного процента!<br>• <b>Досрочное снятие</b>: Вернуть деньги на счёт можно в любой момент, доход начисляется за каждый полный отработанный час.</div>
-                </div>
-                <div class="update-item">
-                    <div class="update-version">Версия 12.0 🔒</div>
-                    <div class="update-text">• Изменение вкладки "Работа" для защиты от казусов.</div>
+                    <div class="update-version" style="color: #ca8a04;">Версия 14.0 (Текущая) 🎬</div>
+                    <div class="update-text">• <b>Полный фикс:</b> Исправлена критическая ошибка в разметке и скриптах. Все модули («Вклад», «Работа», мини-игра) полностью восстановлены!<br>• <b>Приветственный звук:</b> Добавлен неоновый звук при заходе! Музыка сработает при самом первом нажатии на экран.</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Новое модальное окно Вкладов -->
+    <!-- Модальное окно Вкладов -->
     <div class="modal-overlay" id="depositModal" onclick="if(event.target===this) toggleModal('depositModal', false)">
         <div class="modal-content" id="depositContent">
             <div class="modal-header">
@@ -283,8 +279,8 @@
 </div>
 
 <script>
-    // === АБСОЛЮТНО АВТОНОМНЫЙ БЛОК PWA С УМНОЙ ИНТЕРНЕТ-ПРОВЕРКОЙ ВЕРСИЙ (v16) ===
-    const CACHE_NAME = 'kinderbank-v16'; 
+    // === АБСОЛЮТНО АВТОНОМНЫЙ БЛОК PWA С УМНОЙ ИНТЕРНЕТ-ПРОВЕРКОЙ ВЕРСИЙ (v17) ===
+    const CACHE_NAME = 'kinderbank-v17'; 
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE_NAME = '${CACHE_NAME}';
@@ -314,6 +310,7 @@
         const blob = new Blob([swCode], { type: 'application/javascript' });
         navigator.serviceWorker.register(URL.createObjectURL(blob)).then((reg) => {
             if (navigator.onLine) { reg.update(); }
+            reg.update().catch(() => null);
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
@@ -329,20 +326,36 @@
     let jobHistoryData = JSON.parse(localStorage.getItem('kinder_job_history')) || [];
     let usedChecks = JSON.parse(localStorage.getItem('kinder_used_checks')) || [];
     let activeJob = JSON.parse(localStorage.getItem('kinder_active_job')) || null;
-    
-    // Переменная для хранения данных активного вклада
     let activeDeposit = JSON.parse(localStorage.getItem('kinder_deposit')) || null;
     
     let currentHistoryTab = 'ops';
     let timerInterval = null;
-    let depositInterval = null; // Интеграция часового таймера вкладов
+    let depositInterval = null;
     const SECRET_SALT = 7431;
+
+    // Переменная для триггера приветственного звука при первом касании
+    let welcomeSoundPlayed = false;
 
     updateDisplay();
     renderHistory();
     renderWorkZone();
     checkActiveJobTimer();
-    checkActiveDepositTimer(); // Фоновая проверка вклада при перезапуске
+    checkActiveDepositTimer();
+
+    // Отслеживаем первый клик по экрану для запуска приветственного звука
+    window.addEventListener('click', () => {
+        if (!welcomeSoundPlayed) {
+            welcomeSoundPlayed = true;
+            playSound('welcome');
+        }
+    }, { once: true });
+
+    window.addEventListener('touchstart', () => {
+        if (!welcomeSoundPlayed) {
+            welcomeSoundPlayed = true;
+            playSound('welcome');
+        }
+    }, { once: true });
 
     function updateDisplay() {
         document.getElementById('balanceDisplay').innerHTML = balance.toLocaleString() + ' <span id="startGameBtn" style="cursor:pointer; display:inline-block; animation: headerPulse 2s infinite ease-in-out;" onclick="openGame()">💰</span>';
@@ -366,12 +379,13 @@
             setTimeout(() => modal.style.display = 'none', 300);
         }
     }
-       // === ВСТРОЕННЫЙ СИНТЕЗАТОР ЗВУКОВЫХ ЭФФЕКТОВ (ОФЛАЙН) ===
+    // === ВСТРОЕННЫЙ СИНТЕЗАТОР ЗВУКОВЫХ ЭФФЕКТОВ (ОФЛАЙН) ===
     function playSound(type) {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator(); const gain = ctx.createGain();
             osc.connect(gain); gain.connect(ctx.destination);
+            
             if (type === 'success') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
                 gain.gain.setValueAtTime(0.3, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
@@ -392,20 +406,23 @@
                 osc.type = 'triangle'; osc.frequency.setValueAtTime(600, ctx.currentTime);
                 gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
                 osc.start(); osc.stop(ctx.currentTime + 0.05);
+            } else if (type === 'welcome') {
+                // Приятный восходящий космический перелив при входе
+                osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+                osc.start(); osc.stop(ctx.currentTime + 0.6);
             }
         } catch(e) { console.log('Audio error', e); }
     }
 
-    // ИСПРАВЛЕНО: Полное разделение рендеринга двух независимых вкладок истории
     function renderHistory() {
         const historyList = document.getElementById('historyList'); const jobHistoryList = document.getElementById('jobHistoryList');
         if (!historyList || !jobHistoryList) return;
         
-        // 1. Отрисовка финансовых операций
         historyList.innerHTML = '';
-        if (!historyData || historyData.length === 0) { 
-            historyList.innerHTML = '<div class="empty-history">У вас пока нет операций</div>'; 
-        } else {
+        if (!historyData || historyData.length === 0) { historyList.innerHTML = '<div class="empty-history">У вас пока нет операций</div>'; } 
+        else {
             for (let i = historyData.length - 1; i >= 0; i--) {
                 let item = historyData[i]; let isAdd = item.type === 'add';
                 let itemClass = isAdd ? 'item-add' : 'item-spend'; let amountClass = isAdd ? 'amount-add' : 'amount-spend';
@@ -413,11 +430,9 @@
             }
         }
         
-        // 2. Отрисовка выполненных работ
         jobHistoryList.innerHTML = '';
-        if (!jobHistoryData || jobHistoryData.length === 0) { 
-            jobHistoryList.innerHTML = '<div class="empty-history">Вы еще не выполняли задания</div>'; 
-        } else {
+        if (!jobHistoryData || jobHistoryData.length === 0) { jobHistoryList.innerHTML = '<div class="empty-history">Вы еще не выполняли задания</div>'; } 
+        else {
             for (let i = jobHistoryData.length - 1; i >= 0; i--) {
                 let item = jobHistoryData[i];
                 jobHistoryList.innerHTML += `<div class="history-item item-add" style="flex-direction: column; align-items: flex-start; gap: 4px;"><div style="display: flex; justify-content: space-between; width: 100%; font-weight: 700;"><span style="color:#6b21a8; font-size: 15px;">💼 ${item.title}</span><span class="amount-add">+${item.amount.toLocaleString()} 💰</span></div><div style="color: #64748b; font-size: 13px; font-style: italic; width: 100%; text-align: left;">📝 Отзыв: ${item.comment}</div></div>`;
@@ -436,13 +451,11 @@
         }
     }
 
-    // ИСПРАВЛЕНО: Строгая запись в массив финансовых операций
     function addHistoryRecord(type, amount, reason) {
         historyData.push({ type: type, amount: amount, reason: reason });
         localStorage.setItem('kinder_history', JSON.stringify(historyData)); renderHistory();
     }
 
-    // ИСПРАВЛЕНО: Строгая запись в массив выполненных работ
     function addJobHistoryRecord(title, amount, comment) {
         jobHistoryData.push({ title: title, amount: amount, comment: comment });
         localStorage.setItem('kinder_job_history', JSON.stringify(jobHistoryData)); renderHistory();
@@ -499,7 +512,241 @@
             historyData = []; jobHistoryData = []; localStorage.removeItem('kinder_history'); localStorage.removeItem('kinder_job_history'); renderHistory(); playSound('click');
         }
     }
+    function renderWorkZone() {
+        const zone = document.getElementById('workZone'); if (!zone) return;
+        if (!activeJob) {
+            zone.innerHTML = `
+                <div class="form-container">
+                    <p style="font-size:14px; color:#64748b; text-align:center; margin-bottom:5px;">Заполняет работодатель:</p>
+                    <input type="text" id="jobTitleInput" placeholder="Название (например: Мытье посуды)">
+                    <div style="display:flex; gap:5px;">
+                        <input type="number" id="jobTimeInput" placeholder="Время" min="1" style="flex:2;">
+                        <select id="jobTimeUnit" style="flex:1;">
+                            <option value="sec">Сек.</option>
+                            <option value="min" selected>Мин.</option>
+                            <option value="hour">Час.</option>
+                        </select>
+                    </div>
+                    <input type="number" id="jobPayInput" placeholder="Оплата (кол-во монет)" min="1">
+                    <select id="jobPayType">
+                        <option value="once">Разово (после окончания)</option>
+                        <option value="10">Раз в 10 минут</option>
+                        <option value="30">Раз в 30 минут</option>
+                        <option value="45">Раз в 45 минут</option>
+                        <option value="60">Раз в 60 минут (в час)</option>
+                    </select>
+                    <input type="password" id="jobPassInput" placeholder="Придумайте пароль сдачи ребенка">
+                    <button class="btn-job-action" onclick="createJob()">💼 Назначить работу</button>
+                </div>`;
+        } else {
+            let totalSalary = activeJob.pay; let typeText = "Разовая"; let actionButtons = '';
+            if (activeJob.payType !== 'once') {
+                let intervalMin = parseInt(activeJob.payType);
+                totalSalary = Math.round((activeJob.pay * activeJob.totalMinutes) / intervalMin);
+                typeText = `Раз в ${intervalMin} мин (${activeJob.pay}💰 за ${intervalMin}м)`;
+                actionButtons = `<button class="btn-job-action btn-job-cancel" onclick="cancelJob()">❌ Отменить работу (нужен пароль)</button>`;
+            } else {
+                actionButtons = `
+                    <button class="btn-job-action btn-job-early" onclick="earlyCompleteJob()">⚡ Выполнить досрочно (нужен пароль)</button>
+                    <button class="btn-job-action btn-job-cancel" onclick="cancelJob()">❌ Отменить задание (нужен пароль)</button>`;
+            }
+            zone.innerHTML = `
+                <div class="job-card" style="display:flex; flex-direction:column; flex:1;">
+                    <div class="job-title">${activeJob.title}</div>
+                    <div class="job-meta">Тип оплаты: <b>${typeText}</b></div>
+                    <div class="job-meta">Награда за работу: <b>${totalSalary} 💰</b></div>
+                    <div class="job-timer" id="jobCountdown">--:--</div>
+                    <div id="jobActionArea" style="display:flex; flex-direction:column; margin-top:auto; gap:5px;">${actionButtons}</div>
+                </div>`;
+            updateTimerDisplay();
+        }
+    }
 
+    function createJob() {
+        const title = document.getElementById('jobTitleInput').value.trim();
+        const timeVal = parseInt(document.getElementById('jobTimeInput').value);
+        const timeUnit = document.getElementById('jobTimeUnit').value;
+        const pay = parseInt(document.getElementById('jobPayInput').value);
+        const payType = document.getElementById('jobPayType').value;
+        const pass = document.getElementById('jobPassInput').value.trim();
+        if (!title || isNaN(timeVal) || timeVal <= 0 || isNaN(pay) || pay <= 0 || !pass) { alert('Пожалуйста, заполните все поля правильно!'); return; }
+        
+        const adminPass = prompt('Введите секретный пароль работодателя для назначения работы:');
+        if (adminPass === null) return;
+        if (adminPass.trim() !== 'ПетяМайнкрафт') { playSound('error'); alert('Неверный пароль работодателя! Назначение отменено. 🔒'); return; }
+        
+        let ms = 0; let totalMinutes = 0;
+        if (timeUnit === 'sec') { ms = timeVal * 1000; totalMinutes = timeVal / 60; } 
+        else if (timeUnit === 'min') { ms = timeVal * 60 * 1000; totalMinutes = timeVal; } 
+        else if (timeUnit === 'hour') { ms = timeVal * 60 * 60 * 1000; totalMinutes = timeVal * 60; }
+        const endTime = Date.now() + ms;
+        activeJob = { title: title, totalMinutes: totalMinutes, durationMs: ms, pay: pay, payType: payType, password: pass.toLowerCase(), endTime: endTime, status: 'running' };
+        localStorage.setItem('kinder_active_job', JSON.stringify(activeJob));
+        renderWorkZone(); startTimer();
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!activeJob) { clearInterval(timerInterval); return; }
+            let timeLeft = activeJob.endTime - Date.now();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval); activeJob.status = 'completed';
+                localStorage.setItem('kinder_active_job', JSON.stringify(activeJob));
+                renderWorkZone(); showSubmitArea();
+            } else { updateTimerDisplay(); }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const timerEl = document.getElementById('jobCountdown'); if (!timerEl || !activeJob) return;
+        let timeLeft = activeJob.endTime - Date.now();
+        if (timeLeft <= 0) { timerEl.innerText = "Готово! 🎉"; showSubmitArea(); return; }
+        let totalSeconds = Math.floor(timeLeft / 1000);
+        let mins = Math.floor(totalSeconds / 60); let secs = totalSeconds % 60;
+        timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function showSubmitArea() {
+        const area = document.getElementById('jobActionArea'); if (!area) return;
+        area.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:auto; width:100%;">
+                <p style="font-size:13px; color:#1e293b; font-weight:600;">Покажите работу работодателю. Проверка:</p>
+                <input type="text" id="jobComment" placeholder="Комментарий работодателя">
+                <input type="password" id="jobCheckPass" placeholder="Секретный пароль сдачи ребенка">
+                <button class="btn-job-action" style="background:#10b981; margin-top:5px;" onclick="submitJob()">💰 Сдать и получить деньги</button>
+            </div>`;
+    }
+    function checkActiveJobTimer() {
+        if (activeJob) {
+            if (activeJob.endTime - Date.now() > 0) { startTimer(); } 
+            else { activeJob.status = 'completed'; localStorage.setItem('kinder_active_job', JSON.stringify(activeJob)); setTimeout(() => showSubmitArea(), 100); }
+        }
+    }
+
+    function cancelJob() {
+        if (!activeJob) return;
+        const adminPass = prompt('Введите секретный пароль работодателя для отмены работы:');
+        if (adminPass === null) return;
+        if (adminPass.trim() !== 'ПетяМайнкрафт') { playSound('error'); alert('Неверный пароль работодателя! Действие отменено. 🔒'); return; }
+        if (activeJob.payType !== 'once') {
+            let intervalMin = parseInt(activeJob.payType);
+            let timePassedMs = Date.now() - (activeJob.endTime - activeJob.durationMs);
+            let minutesPassed = Math.max(0, timePassedMs / 1000 / 60);
+            let earnedSalary = Math.round((activeJob.pay * minutesPassed) / intervalMin);
+            if (earnedSalary > 0) {
+                balance += earnedSalary; addJobHistoryRecord(activeJob.title, earnedSalary, "Работа отменена досрочно (расчет за время)"); updateDisplay(); playSound('success');
+                alert(`Работа отменена. Получено ${earnedSalary} 💰 за отработанное время.`);
+            } else { playSound('error'); alert('Работа отменена. Отработано слишком мало времени.'); }
+        } else { alert('Работа полностью отменена, деньги не начислены.'); }
+        if (timerInterval) clearInterval(timerInterval); activeJob = null; localStorage.removeItem('kinder_active_job'); renderWorkZone();
+    }
+
+    function earlyCompleteJob() {
+        if (!activeJob || activeJob.payType !== 'once') return;
+        const adminPass = prompt('Введите секретный пароль работодателя для досрочного подтверждения:');
+        if (adminPass === null) return;
+        if (adminPass.trim() !== 'ПетяМайнкрафт') { playSound('error'); alert('Неверный пароль работодателя! Действие отменено. 🔒'); return; }
+        if (timerInterval) clearInterval(timerInterval); activeJob.status = 'completed';
+        localStorage.setItem('kinder_active_job', JSON.stringify(activeJob)); renderWorkZone(); showSubmitArea();
+    }
+
+    function submitJob() {
+        const userPass = document.getElementById('jobCheckPass').value.trim().toLowerCase();
+        const commentInput = document.getElementById('jobComment').value.trim();
+        if (userPass !== activeJob.password) { playSound('error'); alert('Неверный пароль ребенка! 🔒'); return; }
+        let salary = activeJob.pay;
+        if (activeJob.payType !== 'once') {
+            let intervalMin = parseInt(activeJob.payType); salary = Math.round((activeJob.pay * activeJob.totalMinutes) / intervalMin);
+        }
+        balance += salary; addJobHistoryRecord(activeJob.title, salary, commentInput || `Выполнено отлично!`); updateDisplay(); playSound('success');
+        alert(`Отлично! Работа сдана, получено ${salary} 💰`);
+        activeJob = null; localStorage.removeItem('kinder_active_job'); renderWorkZone();
+    }
+
+    // === ЛОГИКА МОДУЛЯ «БАНКОВСКИЕ ВКЛАДЫ» ===
+    function renderDepositZone() {
+        const zone = document.getElementById('depositZone'); if (!zone) return;
+        if (!activeDeposit) {
+            zone.innerHTML = `
+                <div class="form-container">
+                    <p style="font-size:14px; color:#64748b; text-align:center; margin-bottom:5px;">Положите деньги под 5% в час (макс. 5 часов):</p>
+                    <input type="number" id="depositAmountInput" placeholder="Сумма вклада" min="1">
+                    <button class="btn-job-action" style="background:#eab308;" onclick="createDeposit()">🏦 Открыть инвестиционный вклад</button>
+                </div>`;
+        } else {
+            let now = Date.now();
+            let timePassedMs = now - activeDeposit.startTime;
+            let hoursPassed = Math.floor(timePassedMs / (1000 * 60 * 60));
+            let totalHours = Math.min(5, hoursPassed);
+            
+            let currentSum = activeDeposit.amount;
+            for (let i = 0; i < totalHours; i++) { currentSum = Math.round(currentSum * 1.05); }
+            
+            let timeLeftMs = (activeDeposit.startTime + (5 * 60 * 60 * 1000)) - now;
+            let timerText = "Вклад завершен! 🎉";
+            if (timeLeftMs > 0) {
+                let totalSeconds = Math.floor(timeLeftMs / 1000);
+                let hrs = Math.floor(totalSeconds / 3600);
+                let mins = Math.floor((totalSeconds % 3600) / 60);
+                let secs = totalSeconds % 60;
+                timerText = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            }
+
+            zone.innerHTML = `
+                <div class="deposit-card">
+                    <div class="deposit-title">Ваш активный вклад</div>
+                    <div class="deposit-meta">Изначально вложено: <b>${activeDeposit.amount} 💰</b></div>
+                    <div class="deposit-meta">Прошло полных часов: <b>${totalHours} / 5</b></div>
+                    <div class="deposit-meta" style="font-size:16px; color:#1e293b;">Текущая сумма с %: <b style="color:#10b981;">${currentSum} 💰</b></div>
+                    <div class="deposit-timer">${timerText}</div>
+                    <button class="btn-job-action" style="background:#ef4444;" onclick="withdrawDeposit()">💰 Закрыть вклад и вернуть деньги</button>
+                </div>`;
+        }
+    }
+
+    function createDeposit() {
+        const amountInput = document.getElementById('depositAmountInput'); const amount = parseInt(amountInput.value);
+        if (isNaN(amount) || amount <= 0 || amount > balance) { playSound('error'); alert('Неверная сумма или недостаточно средств на балансе!'); return; }
+        if (!confirm(`Вы действительно хотите положить ${amount} 💰 на часовой вклад под 5%?`)) return;
+        
+        balance -= amount;
+        activeDeposit = { amount: amount, startTime: Date.now() };
+        localStorage.setItem('kinder_deposit', JSON.stringify(activeDeposit));
+        updateDisplay(); playSound('click'); renderDepositZone(); startDepositTimer();
+        alert('Вклад успешно открыт! Деньги начали расти.');
+    }
+
+    function startDepositTimer() {
+        if (depositInterval) clearInterval(depositInterval);
+        depositInterval = setInterval(() => {
+            if (!activeDeposit) { clearInterval(depositInterval); return; }
+            if (document.getElementById('depositZone')) { renderDepositZone(); }
+        }, 1000);
+    }
+
+    function checkActiveDepositTimer() {
+        if (activeDeposit) { startDepositTimer(); }
+    }
+
+    function withdrawDeposit() {
+        if (!activeDeposit) return;
+        let now = Date.now();
+        let timePassedMs = now - activeDeposit.startTime;
+        let hoursPassed = Math.floor(timePassedMs / (1000 * 60 * 60));
+        let totalHours = Math.min(5, hoursPassed);
+        
+        let finalSum = activeDeposit.amount;
+        for (let i = 0; i < totalHours; i++) { finalSum = Math.round(finalSum * 1.05); }
+        
+        balance += finalSum;
+        addHistoryRecord('add', finalSum, `Закрыт вклад (прибыль за ${totalHours}ч)`);
+        updateDisplay(); playSound('success');
+        alert(`Вклад успешно закрыт! На ваш счет возвращено ${finalSum} 💰`);
+        
+        if (depositInterval) clearInterval(depositInterval);
+        activeDeposit = null; localStorage.removeItem('kinder_deposit'); renderDepositZone();
+    }
     // === ДВИЖОК МИНИ-ИГРЫ «ПОЙМАЙ МОНЕТУ» ===
     let gameActive = false, score = 0;
     let coinX = 0, coinY = -40, basketX = 50, coinSpeed = 3;
