@@ -2,820 +2,597 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>КиндерБанк</title>
-    
-    <!-- Настройки PWA (Манифест прямо в коде для iOS и Android) -->
-    <link rel="manifest" href="data:application/manifest+json,{'name':'КиндерБанк','short_name':'КиндерБанк','start_url':'.','display':'standalone','background_color':'#2563eb','theme_color':'#2563eb'}">
-    <link rel="apple-touch-icon" href="https://flaticon.com">
-    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 40%, #1e3a8a 70%, #0d9488 100%);
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding: 0; 
-            color: #2c3e50; 
-            overflow: hidden; 
-            position: relative;
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-accent: rgba(255, 255, 255, 0.15);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-neon: #00f2fe;
+            --danger: #ef4444;
         }
 
-        body::before, body::after {
-            content: "";
-            position: absolute;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 38px;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #fff;
+        }
+        .btn {
+            width: 100%;
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-outline {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        #no-internet-screen {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(239, 68, 68, 0.9);
+            padding: 10px 20px;
+            border-radius: 30px;
+            z-index: 9999;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .deposit-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .deposit-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-neon), var(--accent-green));
+            width: 0%;
+        }
+
+        #game-zone {
+            width: 100%;
+            height: 200px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            border: 1px dashed var(--glass-border);
+            margin-top: 10px;
+        }
+
+        .coin {
+            width: 36px;
+            height: 36px;
+            background: #f59e0b;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, rgba(147,51,234,0.3) 50%, rgba(0,0,0,0) 100%);
-            border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 -5px 15px rgba(0,0,0,0.4);
-            pointer-events: none;
-            z-index: -1;
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
         }
-        body::before { width: 140px; height: 140px; bottom: 15%; right: 10%; }
-        body::after { width: 80px; height: 80px; top: 25%; left: 15%; }
-        
-        .app-container { 
-            background: rgba(255, 255, 255, 0.74); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            width: 100vw; 
-            height: 100vh; 
-            max-width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            position: relative; 
-            z-index: 1;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform-origin: center center;
+
+        .receipt-box {
+            background: #fff;
+            color: #1e293b;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 12px;
+            font-family: monospace;
+            border-left: 4px solid var(--accent-green);
         }
-        
-        .app-container.tilt-effect {
-            transform: scale(0.97) rotate(2.5deg);
-        }
-        
-        .app-header { background: #2563eb; color: white; padding: 20px 20px 15px 20px; padding-top: calc(15px + env(safe-area-inset-top)); text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 1px; flex-shrink: 0; animation: headerPulse 3s infinite ease-in-out; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        
-        @keyframes headerPulse {
-            0% { transform: scale(1); text-shadow: 0 0 5px rgba(255,255,255,0.2); }
-            50% { transform: scale(1.03); color: #fef08a; text-shadow: 0 0 15px rgba(254,240,138,0.6); }
-            100% { transform: scale(1); text-shadow: 0 0 5px rgba(255,255,255,0.2); }
-        }
-        
-        .app-content { padding: 15px 20px; flex: 1; display: flex; flex-direction: column; gap: 12px; justify-content: flex-start; overflow-y: auto; }
-        
-        .btn-whats-new { background: rgba(239, 246, 255, 0.85); color: #1d4ed8; padding: 8px 12px; font-size: 13px; font-weight: 700; border-radius: 20px; border: 1px solid #bfdbfe; width: max-content; margin: 0 auto 5px auto; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(37,99,235,0.06); transition: all 0.2s ease; }
-        
-        .bank-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 20px; padding: 20px; color: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); position: relative; overflow: hidden; }
-        .card-label { font-size: 12px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; margin-bottom: 5px; }
-        .balance { font-size: 30px; font-weight: 700; }
-        .card-chip { width: 35px; height: 25px; background: #fbbf24; border-radius: 4px; margin-top: 20px; opacity: 0.8; }
-        
-        .action-box { background: rgba(248, 250, 252, 0.75); padding: 12px; border-radius: 16px; border: 1px solid rgba(237, 242, 247, 0.5); }
-        .input-group { display: flex; gap: 10px; width: 100%; }
-        input, select { flex: 1; min-width: 0; padding: 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; font-weight: 600; text-align: center; background: white; }
-        input:focus, select:focus { border-color: #3b82f6; }
-        /* Физический упругий отклик кнопок при клике */
-        button { padding: 12px 15px; font-size: 15px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s; color: white; white-space: nowrap; flex-shrink: 0; }
-        button:active, .btn-whats-new:active { transform: scale(0.92); }
-        
-        .btn-spend { background: #ef4444; }
-        .btn-spend:hover { background: #dc2626; }
-        .btn-add { background: #10b981; }
-        .btn-add:hover { background: #059669; }
-        
-        .nav-buttons { display: flex; gap: 12px; width: 100%; margin-top: 5px; margin-bottom: 5px; }
-        .btn-nav { flex: 1; padding: 16px; font-size: 16px; font-weight: 700; text-align: center; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-        .btn-nav-work { background: #8b5cf6; }
-        .btn-nav-work:hover { background: #7c3aed; }
-        .btn-nav-history { background: #475569; }
-        .btn-nav-history:hover { background: #334155; }
-        
-        /* Стиль для новой большой кнопки Вклада на главном экране */
-        .btn-nav-deposit { background: #eab308; color: white; width: 100%; margin-bottom: 30px; padding: 16px; font-size: 16px; font-weight: 700; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); text-align: center; }
-        .btn-nav-deposit:hover { background: #ca8a04; }
-        
-        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 10; }
-        .modal-content { background: white; width: 100%; height: 90%; max-height: 90%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding-bottom: calc(45px + env(safe-area-inset-bottom)); overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; flex-shrink: 0; }
-        .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; }
-        .btn-close { background: none; color: #94a3b8; font-size: 24px; padding: 0; width: auto; font-weight: normal; }
-        
-        .update-item { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 10px 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; }
-        .update-version { font-size: 14px; font-weight: 700; color: #1d4ed8; }
-        .update-text { font-size: 13px; color: #475569; line-height: 1.4; }
-        
-        /* Стили для карточки активного вклада */
-        .deposit-card { background: #fefce8; border: 2px dashed #f59e0b; padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
-        .deposit-title { font-size: 18px; font-weight: 700; color: #b45309; }
-        .deposit-meta { font-size: 14px; color: #78350f; font-weight: 500; }
-        .deposit-timer { font-size: 26px; font-weight: 800; color: #d97706; background: white; padding: 8px; border-radius: 10px; border: 1px solid #fef3c7; margin: 5px 0; font-variant-numeric: tabular-nums; }
-        
-        /* === СТИЛИ МИНИ-ИГРЫ «ПОЙМАЙ МОНЕТУ» === */
-        .game-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1e1b4b; display: none; flex-direction: column; z-index: 20; color: white; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); }
-        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .game-score { font-size: 20px; font-weight: 800; color: #fbbf24; }
-        .game-area { flex: 1; background: linear-gradient(to bottom, #1e1b4b 0%, #312e81 100%); border-radius: 20px; position: relative; overflow: hidden; border: 2px solid #4338ca; }
-        .game-coin { position: absolute; font-size: 28px; width: 30px; height: 30px; top: -40px; left: 50%; will-change: top; }
-        .game-basket { position: absolute; font-size: 40px; width: 60px; height: 50px; bottom: 15px; left: 50%; transform: translateX(-50%); touch-action: none; text-align: center; line-height: 50px; will-change: left; }
-        .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 27, 75, 0.9); display: none; flex-direction: column; justify-content: center; align-items: center; gap: 15px; text-align: center; padding: 20px; }
-        .go-title { font-size: 28px; font-weight: 900; color: #ef4444; }
-        .go-result { font-size: 18px; font-weight: 700; color: #cbd5e1; }
-        .btn-game { width: 80%; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        
-        .form-container { display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: flex-start; }
-        .job-card { background: rgba(245, 243, 255, 0.95); border: 2px dashed #c084fc; padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
-        .job-title { font-size: 18px; font-weight: 700; color: #6b21a8; }
-        .job-meta { font-size: 14px; color: #581c87; font-weight: 500; }
-        .job-timer { font-size: 26px; font-weight: 800; color: #dc2626; background: white; padding: 8px; border-radius: 10px; border: 1px solid #f3e8ff; margin: 5px 0; font-variant-numeric: tabular-nums; }
-        .btn-job-action { width: 100%; font-size: 16px; padding: 14px; background: #7c3aed; margin-top: auto; flex-shrink: 0; }
-        .btn-job-action:hover { background: #6d28d9; }
-        .btn-job-cancel { background: #ef4444; width: 100%; margin-top: 5px; }
-        .btn-job-cancel:hover { background: #dc2626; }
-        .btn-job-early { background: #3b82f6; width: 100%; margin-top: 5px; }
-        .btn-job-early:hover { background: #2563eb; }
-        
-        .history-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
-        .history-item { background: rgba(248, 250, 252, 0.9); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #cbd5e1; }
-        .item-add { border-left-color: #10b981; }
-        .item-spend { border-left-color: #ef4444; }
-        .amount-add { color: #10b981; font-weight: 700; }
-        .amount-spend { color: #ef4444; font-weight: 700; }
-        .reason-text { color: #334155; font-size: 14px; max-width: 180px; word-wrap: break-word; text-align: right; }
-        .empty-history { text-align: center; color: #94a3b8; font-size: 14px; margin: 40px 0; }
-        .btn-clear { background: #94a3b8; padding: 14px; font-size: 14px; border-radius: 12px; width: 100%; text-align: center; margin-top: auto; flex-shrink: 0; margin-bottom: 5px; }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <div class="app-header">КиндерБанк</div>
-    
-    <button class="btn-whats-new" onclick="toggleModal('updatesModal', true)">📢 Что нового?</button>
-    
-    <div class="app-content">
-        <div class="bank-card">
-            <div class="card-label">Текущий баланс</div>
-            <div class="balance" id="balanceDisplay">0 <span id="startGameBtn" style="cursor:pointer; display:inline-block; animation: headerPulse 2s infinite ease-in-out;" onclick="openGame()">💰</span></div>
-            <div class="card-chip"></div>
+
+    <div id="no-internet-screen" class="hidden">
+        ⚠️ Офлайн режим. Банк работает автономно!
+    </div>
+
+    <div class="app-container">
+
+        <div class="balance-card">
+            <div class="balance-title">Текущий баланс КиндерБанка</div>
+            <div class="balance-amount"><span id="main-balance">0.00</span> ₽</div>
         </div>
-        
-        <!-- Блок Трат -->
-        <div class="action-box">
-            <div class="input-group" style="flex-direction: column; gap: 8px;">
-                <div style="display: flex; gap: 10px; width: 100%;">
-                    <input type="number" id="spendAmount" placeholder="Сумма трат" min="1">
-                    <select id="spendType" style="display: none;">
-                        <option value="check" selected>Создать Чек (Перевод)</option>
-                    </select>
+
+        <div class="glass-panel">
+            <h2>💸 Денежные переводы</h2>
+            <div style="margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div class="input-group">
+                    <label>Сумма перевода (₽)</label>
+                    <input type="number" id="transfer-amount" placeholder="Сумма">
                 </div>
-                <button class="btn-spend" style="width: 100%;" onclick="spendMoney()">💸 Выполнить операцию</button>
-            </div>
-            <div id="generatedCheckArea" style="display: none; margin-top: 10px; background: #fff5f5; border: 2px dashed #ef4444; padding: 10px; border-radius: 12px; text-align: center;">
-                <p style="font-size: 13px; color: #b91c1c; font-weight: 600;">Передай этот код продавцу для получения товара:</p>
-                <div id="checkCodeDisplay" style="font-size: 20px; font-weight: 800; color: #dc2626; margin: 5px 0; letter-spacing: 1px; user-select: all;">KB-XXXX</div>
-            </div>
-        </div>
-        
-        <!-- Блок Пополнения и Чеков -->
-        <div class="action-box">
-            <div class="input-group" style="flex-direction: column; gap: 8px;">
-                <div style="display: flex; gap: 10px; width: 100%;">
-                    <input type="number" id="addAmount" placeholder="Сумма" min="1">
-                    <button class="btn-add" onclick="addMoney()">Пополнить</button>
+                <div class="input-group">
+                    <label>Получатель</label>
+                    <input type="text" id="transfer-recipient" placeholder="Имя">
                 </div>
-                <button class="btn-nav" style="background: #0284c7; width: 100%; padding: 12px; box-shadow: none;" onclick="receiveCheck()">📥 Принять Чек (От продавца)</button>
+                <button class="btn" onclick="makeTransfer()">Отправить и создать чек</button>
             </div>
-        </div>
-
-        <div class="nav-buttons">
-            <button class="btn-nav btn-nav-work" onclick="toggleModal('workModal', true)">💼 Работа</button>
-            <button class="btn-nav btn-nav-history" onclick="toggleModal('historyModal', true)">📜 История</button>
-        </div>
-
-        <button class="btn-nav-deposit" onclick="toggleModal('depositModal', true); renderDepositZone();">🏦 Открыть / Проверить вклад</button>
-    </div>
-
-    <!-- Модальное окно истории обновлений -->
-    <div class="modal-overlay" id="updatesModal" onclick="if(event.target===this) toggleModal('updatesModal', false)">
-        <div class="modal-content" id="updatesContent">
-            <div class="modal-header">
-                <div class="modal-title">История обновлений</div>
-                <button class="btn-close" onclick="toggleModal('updatesModal', false)">✕</button>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 10px;">
-                <div class="update-item" style="border-left-color: #eab308;">
-                    <div class="update-version" style="color: #ca8a04;">Версия 14.0 (Текущая) 🎬</div>
-                    <div class="update-text">• <b>Полный фикс:</b> Исправлена критическая ошибка в разметке и скриптах. Все модули («Вклад», «Работа», мини-игра) полностью восстановлены!<br>• <b>Приветственный звук:</b> Добавлен неоновый звук при заходе! Музыка сработает при самом первом нажатии на экран.</div>
+            <div>
+                <div class="input-group">
+                    <label>Активировать чек (Введи код чека)</label>
+                    <input type="text" id="redeem-code" placeholder="Например: KB-123456">
                 </div>
+                <button class="btn btn-success" onclick="redeemReceipt()">Принять чек и получить деньги</button>
+            </div>
+            <div id="receipt-container" class="hidden"></div>
+        </div>
+
+        <div class="glass-panel">
+            <h2>💼 Биржа заданий</h2>
+            <div id="parent-zone" style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <div class="input-group">
+                    <label>Пароль Родителя</label>
+                    <input type="password" id="parent-pass-create" placeholder="Пароль">
+                </div>
+                <div class="input-group">
+                    <label>Название задания</label>
+                    <input type="text" id="job-title" placeholder="Что сделать?">
+                </div>
+                <div class="input-group">
+                    <label>Награда (₽)</label>
+                    <input type="number" id="job-reward" placeholder="Сумма">
+                </div>
+                <button class="btn btn-outline" onclick="addJob()">Добавить задание</button>
+            </div>
+            <div id="jobs-list"></div>
+        </div>
+        <div class="glass-panel">
+            <h2>📈 Почасовые Инвестиции</h2>
+            <div class="input-group">
+                <label>Сумма для вклада (₽)</label>
+                <input type="number" id="deposit-amount" placeholder="Минимум 10 ₽">
+            </div>
+            <div class="input-group">
+                <label>Срок вклада</label>
+                <select id="deposit-time">
+                    <option value="1">1 час (Доход +10%)</option>
+                    <option value="3">3 часа (Доход +30%)</option>
+                    <option value="5">5 часов (Доход +50%)</option>
+                </select>
+            </div>
+            <button class="btn btn-success" id="start-deposit-btn" onclick="startDeposit()">Открыть вклад</button>
+            <div id="deposit-status" class="hidden" style="margin-top:14px; text-align:center;">
+                <span id="deposit-timer-text">Осталось: 0 сек</span>
+                <div class="deposit-progress"><div id="deposit-bar" class="deposit-bar"></div></div>
             </div>
         </div>
+
+        <div class="glass-panel">
+            <h2>🎮 Игра: Поймай монету</h2>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span>Поймано: <b id="game-score">0</b></span>
+                <button class="btn btn-outline" id="game-btn" onclick="toggleGame()" style="width:auto; padding:4px 12px;">Старт</button>
+            </div>
+            <div id="game-zone"></div>
+        </div>
+
+        <div class="glass-panel">
+            <h2>⚙️ Управление балансом</h2>
+            <div class="input-group">
+                <label>Секретный код операции</label>
+                <input type="password" id="admin-code" placeholder="Код">
+            </div>
+            <div class="input-group">
+                <label>Сумма операции</label>
+                <input type="number" id="admin-amount" placeholder="Сумма">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-success" onclick="modifyBalance('add')" style="flex:1;">+</button>
+                <button class="btn" onclick="modifyBalance('sub')" style="flex:1; background:var(--danger);">-</button>
+            </div>
+        </div>
+
     </div>
-
-    <!-- Модальное окно Вкладов -->
-    <div class="modal-overlay" id="depositModal" onclick="if(event.target===this) toggleModal('depositModal', false)">
-        <div class="modal-content" id="depositContent">
-            <div class="modal-header">
-                <div class="modal-title">Банковские Вклады (Депозиты)</div>
-                <button class="btn-close" onclick="toggleModal('depositModal', false)">✕</button>
-            </div>
-            <div id="depositZone" style="display:flex; flex-direction:column; flex:1; overflow-y:auto; gap:10px;"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно истории операций -->
-    <div class="modal-overlay" id="historyModal" onclick="if(event.target===this) toggleModal('historyModal', false)">
-        <div class="modal-content" id="historyContent">
-            <div class="modal-header">
-                <div class="modal-title">История</div>
-                <button class="btn-close" onclick="toggleModal('historyModal', false)">✕</button>
-            </div>
-            <div style="display: flex; gap: 5px; background: #f1f5f9; padding: 4px; border-radius: 10px; flex-shrink:0;">
-                <button id="tabOpsBtn" style="flex: 1; padding: 8px; font-size: 13px; background: #2563eb; color: white;" onclick="switchHistoryTab('ops')">💰 Операции</button>
-                <button id="tabJobsBtn" style="flex: 1; padding: 8px; font-size: 13px; background: none; color: #64748b;" onclick="switchHistoryTab('jobs')">💼 Работы</button>
-            </div>
-            <div class="history-list" id="historyList"></div>
-            <div class="history-list" id="jobHistoryList" style="display: none;"></div>
-            <button class="btn-clear" onclick="clearHistory()">🗑️ Очистить всю историю</button>
-        </div>
-    </div>
-
-    <!-- Модальное окно "Работа" -->
-    <div class="modal-overlay" id="workModal" onclick="if(event.target===this) toggleModal('workModal', false)">
-        <div class="modal-content" id="workContent">
-            <div class="modal-header">
-                <div class="modal-title">Биржа Труда (Работа)</div>
-                <button class="btn-close" onclick="toggleModal('workModal', false)">✕</button>
-            </div>
-            <div id="workZone" style="display:flex; flex-direction:column; flex:1; overflow-y:auto;"></div>
-        </div>
-    </div>
-
-    <!-- Экран мини-игры «Поймай монету» -->
-    <div class="game-overlay" id="gameOverlay">
-        <div class="game-header">
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div class="game-score">Счёт: <span id="liveScore">0</span> 💰</div>
-                <div style="font-size: 14px; font-weight: 700; color: #fbbf24;">🏆 Рекорд: <span id="liveRecord">0</span></div>
-            </div>
-            <button style="background: #ef4444; padding: 8px 15px; font-size: 14px;" onclick="closeGame()">Выйти</button>
-        </div>
-        <div class="game-area" id="gameArea">
-            <div class="game-coin" id="gameCoin">💰</div>
-            <div class="game-basket" id="gameBasket">🏧</div>
-            <div class="game-over-screen" id="gameOverScreen">
-                <div class="go-title">ИГРА ОКОНЧЕНА 🛑</div>
-                <div class="go-result" id="finalScoreText">Вы поймали: 0 монет!</div>
-                <button class="btn-game" style="background: #10b981;" onclick="resetAndStartGame()">🔄 Играть снова</button>
-                <button class="btn-game" style="background: #64748b;" onclick="closeGame()">🚪 Выйти в банк</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // === АБСОЛЮТНО АВТОНОМНЫЙ БЛОК PWA С УМНОЙ ИНТЕРНЕТ-ПРОВЕРКОЙ ВЕРСИЙ (v17) ===
-    const CACHE_NAME = 'kinderbank-v17'; 
-    if ('serviceWorker' in navigator) {
-        const swCode = `
-            const CACHE_NAME = '${CACHE_NAME}';
-            self.addEventListener('install', (e) => {
-                e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.add(self.location.origin + self.location.pathname)));
-                self.skipWaiting();
-            });
-            self.addEventListener('activate', (e) => {
-                e.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((key) => { if (key !== CACHE_NAME) return caches.delete(key); }))));
-                return self.clients.claim();
-            });
-            self.addEventListener('fetch', (e) => {
-                if (!e.request.url.startsWith('http')) return;
-                e.respondWith(
-                    caches.match(e.request).then((cachedResponse) => {
-                        const networkFetch = fetch(e.request).then((networkResponse) => {
-                            if (networkResponse && networkResponse.status === 200) {
-                                caches.open(CACHE_NAME).then((cache) => cache.put(e.request, networkResponse.clone()));
-                            }
-                            return networkResponse;
-                        }).catch(() => null);
-                        return cachedResponse || networkFetch;
-                    })
-                );
-            });
-        `;
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).then((reg) => {
-            if (navigator.onLine) { reg.update(); }
-            reg.update().catch(() => null);
-            reg.addEventListener('updatefound', () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { location.reload(); }
-                });
-            });
-        }).catch(err => console.log('PWA Error:', err));
-    }
-    // ===========================================================================
-
-    let balance = parseInt(localStorage.getItem('kinder_balance')) || 0;
-    let historyData = JSON.parse(localStorage.getItem('kinder_history')) || [];
-    let jobHistoryData = JSON.parse(localStorage.getItem('kinder_job_history')) || [];
-    let usedChecks = JSON.parse(localStorage.getItem('kinder_used_checks')) || [];
-    let activeJob = JSON.parse(localStorage.getItem('kinder_active_job')) || null;
-    let activeDeposit = JSON.parse(localStorage.getItem('kinder_deposit')) || null;
-    
-    let currentHistoryTab = 'ops';
-    let timerInterval = null;
-    let depositInterval = null;
-    const SECRET_SALT = 7431;
-
-    // Переменная для триггера приветственного звука при первом касании
-    let welcomeSoundPlayed = false;
-
-    updateDisplay();
-    renderHistory();
-    renderWorkZone();
-    checkActiveJobTimer();
-    checkActiveDepositTimer();
-
-    // Отслеживаем первый клик по экрану для запуска приветственного звука
-    window.addEventListener('click', () => {
-        if (!welcomeSoundPlayed) {
-            welcomeSoundPlayed = true;
-            playSound('welcome');
-        }
-    }, { once: true });
-
-    window.addEventListener('touchstart', () => {
-        if (!welcomeSoundPlayed) {
-            welcomeSoundPlayed = true;
-            playSound('welcome');
-        }
-    }, { once: true });
-
-    function updateDisplay() {
-        document.getElementById('balanceDisplay').innerHTML = balance.toLocaleString() + ' <span id="startGameBtn" style="cursor:pointer; display:inline-block; animation: headerPulse 2s infinite ease-in-out;" onclick="openGame()">💰</span>';
-        localStorage.setItem('kinder_balance', balance);
-    }
-
-    function toggleModal(modalId, show) {
-        const modal = document.getElementById(modalId);
-        const content = modal.querySelector('.modal-content');
-        const container = document.querySelector('.app-container');
+    <script>
+        let balance = parseFloat(localStorage.getItem('kb_balance'));
+        if (isNaN(balance)) { balance = 0.00; }
         
-        if (show) {
-            playSound('click');
-            container.classList.add('tilt-effect');
-            setTimeout(() => container.classList.remove('tilt-effect'), 400);
-            modal.style.display = 'flex';
-            setTimeout(() => content.style.transform = 'translateY(0)', 10);
-        } else {
-            playSound('click');
-            content.style.transform = 'translateY(100%)';
-            setTimeout(() => modal.style.display = 'none', 300);
+        let jobs = JSON.parse(localStorage.getItem('kb_jobs')) || [];
+        let activeReceipts = JSON.parse(localStorage.getItem('kb_active_receipts')) || {};
+
+        let gameActive = false;
+        let gameScore = 0;
+        let gameTimer = null;
+
+        const ADMIN_CODE = "вундия"; 
+        const PARENT_PASSWORD = "ПетяМайнкрафт";
+
+        // === СИСТЕМА ДИНАМИЧЕСКИХ СИНТЕТИЧЕСКИХ ЗВУКОВ ===
+        function playSound(type) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'coin') { // Звук поимки монетки
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, ctx.currentTime); 
+                    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
+                    osc.start(); osc.stop(ctx.currentTime + 0.1);
+                } else if (type === 'success') { // Звук успешной операции / выплаты
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+                    osc.start(); osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'error') { // Звук ошибки / неверного пароля
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+                    osc.start(); osc.stop(ctx.currentTime + 0.2);
+                }
+            } catch (e) { console.log("Ошибка аудио:", e); }
         }
-    }
-    // === ВСТРОЕННЫЙ СИНТЕЗАТОР ЗВУКОВЫХ ЭФФЕКТОВ (ОФЛАЙН) ===
-    function playSound(type) {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator(); const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            
-            if (type === 'success') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                osc.start(); osc.stop(ctx.currentTime + 0.4);
-                setTimeout(() => {
-                    const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc2 = ctx2.createOscillator(); const gain2 = ctx2.createGain();
-                    osc2.connect(gain2); gain2.connect(ctx2.destination);
-                    osc2.frequency.setValueAtTime(1200, ctx2.currentTime); gain2.gain.setValueAtTime(0.2, ctx2.currentTime);
-                    gain2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.3);
-                    osc2.start(); osc2.stop(ctx2.currentTime + 0.3);
-                }, 100);
-            } else if (type === 'error') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, ctx.currentTime);
-                gain.gain.setValueAtTime(0.4, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-                osc.start(); osc.stop(ctx.currentTime + 0.5);
-            } else if (type === 'click') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, ctx.currentTime);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
-                osc.start(); osc.stop(ctx.currentTime + 0.05);
-            } else if (type === 'welcome') {
-                // Приятный восходящий космический перелив при входе
-                osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-                osc.start(); osc.stop(ctx.currentTime + 0.6);
-            }
-        } catch(e) { console.log('Audio error', e); }
-    }
 
-    function renderHistory() {
-        const historyList = document.getElementById('historyList'); const jobHistoryList = document.getElementById('jobHistoryList');
-        if (!historyList || !jobHistoryList) return;
-        
-        historyList.innerHTML = '';
-        if (!historyData || historyData.length === 0) { historyList.innerHTML = '<div class="empty-history">У вас пока нет операций</div>'; } 
-        else {
-            for (let i = historyData.length - 1; i >= 0; i--) {
-                let item = historyData[i]; let isAdd = item.type === 'add';
-                let itemClass = isAdd ? 'item-add' : 'item-spend'; let amountClass = isAdd ? 'amount-add' : 'amount-spend';
-                historyList.innerHTML += `<div class="history-item ${itemClass}"><span class="${amountClass}">${isAdd ? '+' : '-'}${item.amount.toLocaleString()} 💰</span><span class="reason-text">${item.reason}</span></div>`;
-            }
-        }
-        
-        jobHistoryList.innerHTML = '';
-        if (!jobHistoryData || jobHistoryData.length === 0) { jobHistoryList.innerHTML = '<div class="empty-history">Вы еще не выполняли задания</div>'; } 
-        else {
-            for (let i = jobHistoryData.length - 1; i >= 0; i--) {
-                let item = jobHistoryData[i];
-                jobHistoryList.innerHTML += `<div class="history-item item-add" style="flex-direction: column; align-items: flex-start; gap: 4px;"><div style="display: flex; justify-content: space-between; width: 100%; font-weight: 700;"><span style="color:#6b21a8; font-size: 15px;">💼 ${item.title}</span><span class="amount-add">+${item.amount.toLocaleString()} 💰</span></div><div style="color: #64748b; font-size: 13px; font-style: italic; width: 100%; text-align: left;">📝 Отзыв: ${item.comment}</div></div>`;
-            }
-        }
-    }
-
-    function switchHistoryTab(tab) {
-        playSound('click'); currentHistoryTab = tab;
-        const opsBtn = document.getElementById('tabOpsBtn'); const jobsBtn = document.getElementById('tabJobsBtn');
-        const opsList = document.getElementById('historyList'); const jobsList = document.getElementById('jobHistoryList');
-        if (tab === 'ops') {
-            opsBtn.style.background = '#2563eb'; opsBtn.style.color = 'white'; jobsBtn.style.background = 'none'; jobsBtn.style.color = '#64748b'; opsList.style.display = 'flex'; jobsList.style.display = 'none';
-        } else {
-            jobsBtn.style.background = '#2563eb'; jobsBtn.style.color = 'white'; opsBtn.style.background = 'none'; opsBtn.style.color = '#64748b'; opsList.style.display = 'none'; jobsList.style.display = 'flex';
-        }
-    }
-
-    function addHistoryRecord(type, amount, reason) {
-        historyData.push({ type: type, amount: amount, reason: reason });
-        localStorage.setItem('kinder_history', JSON.stringify(historyData)); renderHistory();
-    }
-
-    function addJobHistoryRecord(title, amount, comment) {
-        jobHistoryData.push({ title: title, amount: amount, comment: comment });
-        localStorage.setItem('kinder_job_history', JSON.stringify(jobHistoryData)); renderHistory();
-    }
-    function spendMoney() {
-        document.querySelector('.app-container').classList.add('tilt-effect'); setTimeout(() => document.querySelector('.app-container').classList.remove('tilt-effect'), 400);
-        const amountInput = document.getElementById('spendAmount'); const amount = parseInt(amountInput.value);
-        const checkArea = document.getElementById('generatedCheckArea'); const checkDisplay = document.getElementById('checkCodeDisplay');
-        if (isNaN(amount) || amount <= 0 || amount > balance) { playSound('error'); alert('Ошибка суммы или недостаточно средств!'); return; }
-        if (!confirm(`Вы действительно хотите списать ${amount} 💰 и создать чек?`)) return;
-        let myWalletId = localStorage.getItem('kinder_wallet_id');
-        if (!myWalletId) { myWalletId = Math.floor(Math.random() * 90 + 10).toString(); localStorage.setItem('kinder_wallet_id', myWalletId); }
-        const randomId = Math.floor(Math.random() * 90 + 10);
-        const hashSource = amount + randomId + parseInt(myWalletId) + SECRET_SALT;
-        const controlSum = hashSource % 900 + 100; const checkCode = `КБ-${amount}-${myWalletId}${randomId}${controlSum}`;
-        balance -= amount; addHistoryRecord('spend', amount, `Создан чек на перевод`); updateDisplay(); playSound('click');
-        checkDisplay.innerText = checkCode; checkArea.style.display = 'block'; amountInput.value = '';
-        alert('Чек успешно создан! Передайте короткий код продавцу.');
-    }
-
-    function addMoney() {
-        const amountInput = document.getElementById('addAmount'); const amount = parseInt(amountInput.value);
-        if (isNaN(amount) || amount <= 0) return;
-        const password = prompt('Введите секретный пароль для пополнения:'); if (password === null) return;
-        if (password.trim().toLowerCase() !== 'вундия') { playSound('error'); alert('Неверный пароль! 🔒'); return; }
-        const reason = prompt('Откуда появились монеты?', 'Заработал/Подарок'); if (reason === null) return;
-        balance += amount; addHistoryRecord('add', amount, reason.trim() || 'Пополнение'); updateDisplay(); amountInput.value = ''; playSound('success');
-    }
-
-    function receiveCheck() {
-        document.querySelector('.app-container').classList.add('tilt-effect'); setTimeout(() => document.querySelector('.app-container').classList.remove('tilt-effect'), 400);
-        const rawCode = prompt('Введите код чека от покупателя:'); if (rawCode === null) return;
-        const code = rawCode.trim().toUpperCase(); const parts = code.split('-');
-        if (parts.length !== 3 || parts[0] !== 'КБ') { playSound('error'); alert('Ошибка: Неверный формат чека! ❌'); return; }
-        const amount = parseInt(parts[1]); const tail = parts[2];
-        if (isNaN(amount) || amount <= 0 || !tail || tail.length !== 7) { playSound('error'); alert('Ошибка: Чек поврежден или неверная длина кода! ❌'); return; }
-        let myWalletId = localStorage.getItem('kinder_wallet_id');
-        if (!myWalletId) { myWalletId = Math.floor(Math.random() * 90 + 10).toString(); localStorage.setItem('kinder_wallet_id', myWalletId); }
-        const creatorWalletId = tail.substring(0, 2); const randomId = parseInt(tail.substring(2, 4)); const userControlSum = parseInt(tail.substring(4, 7));
-        if (creatorWalletId === myWalletId) { playSound('error'); alert('Обман заблокирован! 🛑 Вы не можете активировать свой собственный чек!'); return; }
-        if (usedChecks.includes(tail)) { playSound('error'); alert('Ошибка: Этот чек уже был активирован ранее! 🛑'); return; }
-        const hashSource = amount + randomId + parseInt(creatorWalletId) + SECRET_SALT; const expectedControlSum = hashSource % 900 + 100;
-        if (userControlSum !== expectedControlSum) { playSound('error'); alert('Ошибка: Проверка подлинности не пройдена! Фальшивка. 🔒'); return; }
-        usedChecks.push(tail); localStorage.setItem('kinder_used_checks', JSON.stringify(usedChecks));
-        const comment = prompt('За какой товар вы принимаете оплату?', 'Продажа товара');
-        balance += amount; addHistoryRecord('add', amount, `Получено по чеку: ${comment ? comment.trim() : 'Продажа'}`); updateDisplay(); playSound('success');
-        alert(`Успех! Чек подлинный. На счет зачислено ${amount} 💰`);
-    }
-
-    function clearHistory() {
-        const password = prompt('Введите секретный пароль для очистки истории:'); if (password === null) return;
-        if (password.trim().toLowerCase() !== 'вожатик') { playSound('error'); alert('Неверный пароль! 🛑'); return; }
-        if (confirm('Вы уверены, что хотите стереть ВСЮ историю?')) {
-            historyData = []; jobHistoryData = []; localStorage.removeItem('kinder_history'); localStorage.removeItem('kinder_job_history'); renderHistory(); playSound('click');
-        }
-    }
-    function renderWorkZone() {
-        const zone = document.getElementById('workZone'); if (!zone) return;
-        if (!activeJob) {
-            zone.innerHTML = `
-                <div class="form-container">
-                    <p style="font-size:14px; color:#64748b; text-align:center; margin-bottom:5px;">Заполняет работодатель:</p>
-                    <input type="text" id="jobTitleInput" placeholder="Название (например: Мытье посуды)">
-                    <div style="display:flex; gap:5px;">
-                        <input type="number" id="jobTimeInput" placeholder="Время" min="1" style="flex:2;">
-                        <select id="jobTimeUnit" style="flex:1;">
-                            <option value="sec">Сек.</option>
-                            <option value="min" selected>Мин.</option>
-                            <option value="hour">Час.</option>
-                        </select>
-                    </div>
-                    <input type="number" id="jobPayInput" placeholder="Оплата (кол-во монет)" min="1">
-                    <select id="jobPayType">
-                        <option value="once">Разово (после окончания)</option>
-                        <option value="10">Раз в 10 минут</option>
-                        <option value="30">Раз в 30 минут</option>
-                        <option value="45">Раз в 45 минут</option>
-                        <option value="60">Раз в 60 минут (в час)</option>
-                    </select>
-                    <input type="password" id="jobPassInput" placeholder="Придумайте пароль сдачи ребенка">
-                    <button class="btn-job-action" onclick="createJob()">💼 Назначить работу</button>
-                </div>`;
-        } else {
-            let totalSalary = activeJob.pay; let typeText = "Разовая"; let actionButtons = '';
-            if (activeJob.payType !== 'once') {
-                let intervalMin = parseInt(activeJob.payType);
-                totalSalary = Math.round((activeJob.pay * activeJob.totalMinutes) / intervalMin);
-                typeText = `Раз в ${intervalMin} мин (${activeJob.pay}💰 за ${intervalMin}м)`;
-                actionButtons = `<button class="btn-job-action btn-job-cancel" onclick="cancelJob()">❌ Отменить работу (нужен пароль)</button>`;
+        function checkInternet() {
+            if (navigator.onLine) {
+                document.getElementById('no-internet-screen').classList.add('hidden');
             } else {
-                actionButtons = `
-                    <button class="btn-job-action btn-job-early" onclick="earlyCompleteJob()">⚡ Выполнить досрочно (нужен пароль)</button>
-                    <button class="btn-job-action btn-job-cancel" onclick="cancelJob()">❌ Отменить задание (нужен пароль)</button>`;
+                document.getElementById('no-internet-screen').classList.remove('hidden');
             }
-            zone.innerHTML = `
-                <div class="job-card" style="display:flex; flex-direction:column; flex:1;">
-                    <div class="job-title">${activeJob.title}</div>
-                    <div class="job-meta">Тип оплаты: <b>${typeText}</b></div>
-                    <div class="job-meta">Награда за работу: <b>${totalSalary} 💰</b></div>
-                    <div class="job-timer" id="jobCountdown">--:--</div>
-                    <div id="jobActionArea" style="display:flex; flex-direction:column; margin-top:auto; gap:5px;">${actionButtons}</div>
-                </div>`;
-            updateTimerDisplay();
         }
-    }
 
-    function createJob() {
-        const title = document.getElementById('jobTitleInput').value.trim();
-        const timeVal = parseInt(document.getElementById('jobTimeInput').value);
-        const timeUnit = document.getElementById('jobTimeUnit').value;
-        const pay = parseInt(document.getElementById('jobPayInput').value);
-        const payType = document.getElementById('jobPayType').value;
-        const pass = document.getElementById('jobPassInput').value.trim();
-        if (!title || isNaN(timeVal) || timeVal <= 0 || isNaN(pay) || pay <= 0 || !pass) { alert('Пожалуйста, заполните все поля правильно!'); return; }
-        
-        const adminPass = prompt('Введите секретный пароль работодателя для назначения работы:');
-        if (adminPass === null) return;
-        if (adminPass.trim() !== 'ПетяМайнкрафт') { playSound('error'); alert('Неверный пароль работодателя! Назначение отменено. 🔒'); return; }
-        
-        let ms = 0; let totalMinutes = 0;
-        if (timeUnit === 'sec') { ms = timeVal * 1000; totalMinutes = timeVal / 60; } 
-        else if (timeUnit === 'min') { ms = timeVal * 60 * 1000; totalMinutes = timeVal; } 
-        else if (timeUnit === 'hour') { ms = timeVal * 60 * 60 * 1000; totalMinutes = timeVal * 60; }
-        const endTime = Date.now() + ms;
-        activeJob = { title: title, totalMinutes: totalMinutes, durationMs: ms, pay: pay, payType: payType, password: pass.toLowerCase(), endTime: endTime, status: 'running' };
-        localStorage.setItem('kinder_active_job', JSON.stringify(activeJob));
-        renderWorkZone(); startTimer();
-    }
+        window.addEventListener('online', checkInternet);
+        window.addEventListener('offline', checkInternet);
 
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            if (!activeJob) { clearInterval(timerInterval); return; }
-            let timeLeft = activeJob.endTime - Date.now();
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval); activeJob.status = 'completed';
-                localStorage.setItem('kinder_active_job', JSON.stringify(activeJob));
-                renderWorkZone(); showSubmitArea();
-            } else { updateTimerDisplay(); }
-        }, 1000);
-    }
+        document.addEventListener("DOMContentLoaded", function() {
+            checkInternet();
+            updateBalanceUI();
+            renderJobs();
+        });
 
-    function updateTimerDisplay() {
-        const timerEl = document.getElementById('jobCountdown'); if (!timerEl || !activeJob) return;
-        let timeLeft = activeJob.endTime - Date.now();
-        if (timeLeft <= 0) { timerEl.innerText = "Готово! 🎉"; showSubmitArea(); return; }
-        let totalSeconds = Math.floor(timeLeft / 1000);
-        let mins = Math.floor(totalSeconds / 60); let secs = totalSeconds % 60;
-        timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function showSubmitArea() {
-        const area = document.getElementById('jobActionArea'); if (!area) return;
-        area.innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:8px; margin-top:auto; width:100%;">
-                <p style="font-size:13px; color:#1e293b; font-weight:600;">Покажите работу работодателю. Проверка:</p>
-                <input type="text" id="jobComment" placeholder="Комментарий работодателя">
-                <input type="password" id="jobCheckPass" placeholder="Секретный пароль сдачи ребенка">
-                <button class="btn-job-action" style="background:#10b981; margin-top:5px;" onclick="submitJob()">💰 Сдать и получить деньги</button>
-            </div>`;
-    }
-    function checkActiveJobTimer() {
-        if (activeJob) {
-            if (activeJob.endTime - Date.now() > 0) { startTimer(); } 
-            else { activeJob.status = 'completed'; localStorage.setItem('kinder_active_job', JSON.stringify(activeJob)); setTimeout(() => showSubmitArea(), 100); }
+        function updateBalanceUI() {
+            document.getElementById('main-balance').innerText = balance.toFixed(2);
+            localStorage.setItem('kb_balance', balance);
         }
-    }
 
-    function cancelJob() {
-        if (!activeJob) return;
-        const adminPass = prompt('Введите секретный пароль работодателя для отмены работы:');
-        if (adminPass === null) return;
-        if (adminPass.trim() !== 'ПетяМайнкрафт') { playSound('error'); alert('Неверный пароль работодателя! Действие отменено. 🔒'); return; }
-        if (activeJob.payType !== 'once') {
-            let intervalMin = parseInt(activeJob.payType);
-            let timePassedMs = Date.now() - (activeJob.endTime - activeJob.durationMs);
-            let minutesPassed = Math.max(0, timePassedMs / 1000 / 60);
-            let earnedSalary = Math.round((activeJob.pay * minutesPassed) / intervalMin);
-            if (earnedSalary > 0) {
-                balance += earnedSalary; addJobHistoryRecord(activeJob.title, earnedSalary, "Работа отменена досрочно (расчет за время)"); updateDisplay(); playSound('success');
-                alert(`Работа отменена. Получено ${earnedSalary} 💰 за отработанное время.`);
-            } else { playSound('error'); alert('Работа отменена. Отработано слишком мало времени.'); }
-        } else { alert('Работа полностью отменена, деньги не начислены.'); }
-        if (timerInterval) clearInterval(timerInterval); activeJob = null; localStorage.removeItem('kinder_active_job'); renderWorkZone();
-    }
+        function makeTransfer() {
+            const amountInput = document.getElementById('transfer-amount');
+            const recipientInput = document.getElementById('transfer-recipient');
+            const amount = parseFloat(amountInput.value);
+            const recipient = recipientInput.value.trim();
 
-    function earlyCompleteJob() {
-        if (!activeJob || activeJob.payType !== 'once') return;
-        const adminPass = prompt('Введите секретный пароль работодателя для досрочного подтверждения:');
-        if (adminPass === null) return;
-        if (adminPass.trim() !== 'ПетяМайнкрафт') { playSound('error'); alert('Неверный пароль работодателя! Действие отменено. 🔒'); return; }
-        if (timerInterval) clearInterval(timerInterval); activeJob.status = 'completed';
-        localStorage.setItem('kinder_active_job', JSON.stringify(activeJob)); renderWorkZone(); showSubmitArea();
-    }
+            if (!amount || amount <= 0 || !recipient) { playSound('error'); return alert("Заполните поля!"); }
+            if (amount > balance) { playSound('error'); return alert("Недостаточно денег!"); }
 
-    function submitJob() {
-        const userPass = document.getElementById('jobCheckPass').value.trim().toLowerCase();
-        const commentInput = document.getElementById('jobComment').value.trim();
-        if (userPass !== activeJob.password) { playSound('error'); alert('Неверный пароль ребенка! 🔒'); return; }
-        let salary = activeJob.pay;
-        if (activeJob.payType !== 'once') {
-            let intervalMin = parseInt(activeJob.payType); salary = Math.round((activeJob.pay * activeJob.totalMinutes) / intervalMin);
+            balance -= amount;
+            updateBalanceUI();
+
+            const randomNum = Math.floor(100000 + Math.random() * 900000);
+            const receiptCode = `KB-${randomNum}`;
+
+            // Записываем в свойства чека сумму и метку "собственный чек" (isMine)
+            activeReceipts[receiptCode] = { amount: amount, isMine: true };
+            localStorage.setItem('kb_active_receipts', JSON.stringify(activeReceipts));
+            playSound('success');
+
+            const receiptContainer = document.getElementById('receipt-container');
+            receiptContainer.innerHTML = `
+                <div class="receipt-box">
+                    <div style="text-align:center; font-weight:bold; margin-bottom: 6px;">🧾 ЧЕК КИHДЕРБАНК</div>
+                    <div><b>КОД ЧЕКА:</b> <span style="color:var(--accent-neon); font-weight:bold; font-size:16px;">${receiptCode}</span></div>
+                    <div><b>Получатель:</b> ${recipient}</div>
+                    <div><b>Сумма:</b> -${amount.toFixed(2)} ₽</div>
+                    <div style="font-size:11px; color:#64748b; margin-top:6px; text-align:center;">Скопируй КОД ЧЕКА и передай получателю!</div>
+                </div>
+            `;
+            receiptContainer.classList.remove('hidden');
+            amountInput.value = ""; recipientInput.value = "";
         }
-        balance += salary; addJobHistoryRecord(activeJob.title, salary, commentInput || `Выполнено отлично!`); updateDisplay(); playSound('success');
-        alert(`Отлично! Работа сдана, получено ${salary} 💰`);
-        activeJob = null; localStorage.removeItem('kinder_active_job'); renderWorkZone();
-    }
 
-    // === ЛОГИКА МОДУЛЯ «БАНКОВСКИЕ ВКЛАДЫ» ===
-    function renderDepositZone() {
-        const zone = document.getElementById('depositZone'); if (!zone) return;
-        if (!activeDeposit) {
-            zone.innerHTML = `
-                <div class="form-container">
-                    <p style="font-size:14px; color:#64748b; text-align:center; margin-bottom:5px;">Положите деньги под 5% в час (макс. 5 часов):</p>
-                    <input type="number" id="depositAmountInput" placeholder="Сумма вклада" min="1">
-                    <button class="btn-job-action" style="background:#eab308;" onclick="createDeposit()">🏦 Открыть инвестиционный вклад</button>
-                </div>`;
-        } else {
-            let now = Date.now();
-            let timePassedMs = now - activeDeposit.startTime;
-            let hoursPassed = Math.floor(timePassedMs / (1000 * 60 * 60));
-            let totalHours = Math.min(5, hoursPassed);
+        function redeemReceipt() {
+            const codeInput = document.getElementById('redeem-code');
+            const code = codeInput.value.trim();
+
+            if (!code) { playSound('error'); return alert("Введите код чека!"); }
+
+            if (activeReceipts.hasOwnProperty(code)) {
+                const receiptData = activeReceipts[code];
+                
+                // Проверяем метку безопасности — если чек был создан на этом же устройстве, блокируем
+                if (receiptData.isMine === true) {
+                    playSound('error');
+                    return alert("Безопасность: Вы не можете активировать собственный чек!");
+                }
+
+                const rewardAmount = receiptData.amount;
+                balance += rewardAmount;
+                updateBalanceUI();
+
+                delete activeReceipts[code];
+                localStorage.setItem('kb_active_receipts', JSON.stringify(activeReceipts));
+
+                playSound('success');
+                alert(`🎉 Успешно! Чек ${code} принят. Зачислено: +${rewardAmount.toFixed(2)} ₽`);
+                codeInput.value = "";
+                document.getElementById('receipt-container').classList.add('hidden');
+            } else {
+                playSound('error');
+                alert("Ошибка! Такого чека не существует или он уже активирован.");
+            }
+        }
+        function renderJobs() {
+            const container = document.getElementById('jobs-list');
+            container.innerHTML = "";
+            if(jobs.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:10px;">Заданий пока нет. Добавьте их выше!</div>`;
+                return;
+            }
+            jobs.forEach(job => {
+                const item = document.createElement('div');
+                item.className = "list-item";
+                item.innerHTML = `
+                    <div><div>${job.title}</div><div style="color:var(--accent-neon)">+${job.reward} ₽</div></div>
+                    <button class="btn btn-success" style="width:auto; padding:6px 12px;" onclick="completeJob(${job.id})">OK</button>
+                `;
+                container.appendChild(item);
+            });
+            localStorage.setItem('kb_jobs', JSON.stringify(jobs));
+        }
+
+        function addJob() {
+            const pass = document.getElementById('parent-pass-create').value;
+            const title = document.getElementById('job-title').value.trim();
+            const reward = parseFloat(document.getElementById('job-reward').value);
+
+            if (pass !== PARENT_PASSWORD) { playSound('error'); return alert("Неверный пароль!"); }
+            if (!title || !reward) { playSound('error'); return alert("Заполните поля!"); }
+
+            jobs.push({ id: Date.now(), title: title, reward: reward });
+            renderJobs();
+            playSound('success');
+            document.getElementById('job-title').value = ""; document.getElementById('job-reward').value = "";
+        }
+
+        function completeJob(id) {
+            const pass = prompt("Введите родительский пароль:");
+            if (pass !== PARENT_PASSWORD) { playSound('error'); return alert("Неверный пароль!"); }
+
+            const idx = jobs.findIndex(j => j.id === id);
+            if (idx !== -1) {
+                balance += jobs[idx].reward;
+                updateBalanceUI();
+                jobs.splice(idx, 1);
+                renderJobs();
+                playSound('success');
+            }
+        }
+
+        function startDeposit() {
+            const amountInput = document.getElementById('deposit-amount');
+            const amount = parseFloat(amountInput.value);
+            const hours = parseInt(document.getElementById('deposit-time').value);
+
+            if (!amount || amount < 10 || amount > balance) { playSound('error'); return alert("Некорректная сумма!"); }
+
+            balance -= amount; updateBalanceUI();
+            playSound('success');
+
+            let pct = hours * 0.10;
+            const reward = amount + (amount * pct);
+            let totalSeconds = hours * 3600;
+
+            document.getElementById('start-deposit-btn').disabled = true;
+            const statusZone = document.getElementById('deposit-status');
+            const bar = document.getElementById('deposit-bar');
             
-            let currentSum = activeDeposit.amount;
-            for (let i = 0; i < totalHours; i++) { currentSum = Math.round(currentSum * 1.05); }
+            statusZone.classList.remove('hidden');
+            bar.style.width = "0%";
+            setTimeout(() => { bar.style.transition = `width ${totalSeconds}s linear`; bar.style.width = "100%"; }, 50);
+
+            let left = totalSeconds;
             
-            let timeLeftMs = (activeDeposit.startTime + (5 * 60 * 60 * 1000)) - now;
-            let timerText = "Вклад завершен! 🎉";
-            if (timeLeftMs > 0) {
-                let totalSeconds = Math.floor(timeLeftMs / 1000);
-                let hrs = Math.floor(totalSeconds / 3600);
-                let mins = Math.floor((totalSeconds % 3600) / 60);
-                let secs = totalSeconds % 60;
-                timerText = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            function formatTime(sec) {
+                let h = Math.floor(sec / 3600);
+                let m = Math.floor((sec % 3600) / 60);
+                let s = sec % 60;
+                return `${h}ч ${m}м ${s}с`;
             }
 
-            zone.innerHTML = `
-                <div class="deposit-card">
-                    <div class="deposit-title">Ваш активный вклад</div>
-                    <div class="deposit-meta">Изначально вложено: <b>${activeDeposit.amount} 💰</b></div>
-                    <div class="deposit-meta">Прошло полных часов: <b>${totalHours} / 5</b></div>
-                    <div class="deposit-meta" style="font-size:16px; color:#1e293b;">Текущая сумма с %: <b style="color:#10b981;">${currentSum} 💰</b></div>
-                    <div class="deposit-timer">${timerText}</div>
-                    <button class="btn-job-action" style="background:#ef4444;" onclick="withdrawDeposit()">💰 Закрыть вклад и вернуть деньги</button>
-                </div>`;
+            document.getElementById('deposit-timer-text').innerText = `Осталось: ${formatTime(left)}`;
+
+            const interval = setInterval(() => {
+                left--;
+                document.getElementById('deposit-timer-text').innerText = `Осталось: ${formatTime(left)}`;
+                if (left <= 0) {
+                    clearInterval(interval);
+                    balance += reward; updateBalanceUI();
+                    playSound('success');
+                    alert(`Вклад закрыт! Получено: +${reward.toFixed(2)} ₽ (Прибыль: +${(hours*10)}%)`);
+                    statusZone.classList.add('hidden');
+                    bar.style.transition = "none";
+                    document.getElementById('start-deposit-btn').disabled = false;
+                }
+            }, 1000);
         }
-    }
 
-    function createDeposit() {
-        const amountInput = document.getElementById('depositAmountInput'); const amount = parseInt(amountInput.value);
-        if (isNaN(amount) || amount <= 0 || amount > balance) { playSound('error'); alert('Неверная сумма или недостаточно средств на балансе!'); return; }
-        if (!confirm(`Вы действительно хотите положить ${amount} 💰 на часовой вклад под 5%?`)) return;
-        
-        balance -= amount;
-        activeDeposit = { amount: amount, startTime: Date.now() };
-        localStorage.setItem('kinder_deposit', JSON.stringify(activeDeposit));
-        updateDisplay(); playSound('click'); renderDepositZone(); startDepositTimer();
-        alert('Вклад успешно открыт! Деньги начали расти.');
-    }
-
-    function startDepositTimer() {
-        if (depositInterval) clearInterval(depositInterval);
-        depositInterval = setInterval(() => {
-            if (!activeDeposit) { clearInterval(depositInterval); return; }
-            if (document.getElementById('depositZone')) { renderDepositZone(); }
-        }, 1000);
-    }
-
-    function checkActiveDepositTimer() {
-        if (activeDeposit) { startDepositTimer(); }
-    }
-
-    function withdrawDeposit() {
-        if (!activeDeposit) return;
-        let now = Date.now();
-        let timePassedMs = now - activeDeposit.startTime;
-        let hoursPassed = Math.floor(timePassedMs / (1000 * 60 * 60));
-        let totalHours = Math.min(5, hoursPassed);
-        
-        let finalSum = activeDeposit.amount;
-        for (let i = 0; i < totalHours; i++) { finalSum = Math.round(finalSum * 1.05); }
-        
-        balance += finalSum;
-        addHistoryRecord('add', finalSum, `Закрыт вклад (прибыль за ${totalHours}ч)`);
-        updateDisplay(); playSound('success');
-        alert(`Вклад успешно закрыт! На ваш счет возвращено ${finalSum} 💰`);
-        
-        if (depositInterval) clearInterval(depositInterval);
-        activeDeposit = null; localStorage.removeItem('kinder_deposit'); renderDepositZone();
-    }
-    // === ДВИЖОК МИНИ-ИГРЫ «ПОЙМАЙ МОНЕТУ» ===
-    let gameActive = false, score = 0;
-    let coinX = 0, coinY = -40, basketX = 50, coinSpeed = 3;
-    let gameLoopInterval = null, isDraggingBasket = false;
-
-    const gameOverlay = document.getElementById('gameOverlay'); const gameArea = document.getElementById('gameArea');
-    const gameCoin = document.getElementById('gameCoin'); const gameBasket = document.getElementById('gameBasket');
-    const gameOverScreen = document.getElementById('gameOverScreen'); const liveScoreEl = document.getElementById('liveScore');
-    const finalScoreText = document.getElementById('finalScoreText'); const liveRecordEl = document.getElementById('liveRecord');
-
-    gameBasket.addEventListener('touchstart', (e) => { isDraggingBasket = true; e.preventDefault(); }, {passive: false});
-    gameArea.addEventListener('touchmove', (e) => {
-        if (!isDraggingBasket || !gameActive) return;
-        const rect = gameArea.getBoundingClientRect();
-        let pct = ((e.touches.clientX - rect.left) / rect.width) * 100;
-        basketX = Math.max(5, Math.min(95, pct)); gameBasket.style.left = basketX + '%';
-    }, {passive: true});
-    window.addEventListener('touchend', () => { isDraggingBasket = false; });
-
-    gameBasket.addEventListener('mousedown', () => { isDraggingBasket = true; });
-    gameArea.addEventListener('mousemove', (e) => {
-        if (!isDraggingBasket || !gameActive) return;
-        const rect = gameArea.getBoundingClientRect();
-        let pct = ((e.clientX - rect.left) / rect.width) * 100;
-        basketX = Math.max(5, Math.min(95, pct)); gameBasket.style.left = basketX + '%';
-    });
-    window.addEventListener('mouseup', () => { isDraggingBasket = false; });
-
-    function openGame() {
-        gameOverlay.style.display = 'flex';
-        liveRecordEl.innerText = parseInt(localStorage.getItem('kinder_game_record')) || 0;
-        resetAndStartGame();
-    }
-
-    function closeGame() {
-        gameActive = false; if (gameLoopInterval) clearInterval(gameLoopInterval);
-        gameOverlay.style.display = 'none'; playSound('click');
-    }
-
-    function resetAndStartGame() {
-        score = 0; coinSpeed = 4; basketX = 50; coinY = -40; dropNewCoin();
-        liveScoreEl.innerText = score; liveRecordEl.innerText = parseInt(localStorage.getItem('kinder_game_record')) || 0;
-        gameBasket.style.left = basketX + '%'; gameOverScreen.style.display = 'none'; gameActive = true;
-        if (gameLoopInterval) clearInterval(gameLoopInterval); gameLoopInterval = setInterval(gameUpdate, 10);
-        playSound('click');
-    }
-
-    function dropNewCoin() {
-        coinX = Math.floor(Math.random() * 85) + 5; coinY = -40;
-        gameCoin.style.left = coinX + '%'; gameCoin.style.top = coinY + 'px';
-    }
-
-    function gameUpdate() {
-        if (!gameActive) return;
-        coinY += coinSpeed; gameCoin.style.top = coinY + 'px';
-        const areaHeight = gameArea.clientHeight;
-        if (coinY >= areaHeight - 65 && coinY <= areaHeight - 25) {
-            if (Math.abs(coinX - basketX) <= 12) {
-                score++; liveScoreEl.innerText = score;
-                let currentRecord = parseInt(localStorage.getItem('kinder_game_record')) || 0;
-                if (score > currentRecord) { localStorage.setItem('kinder_game_record', score); liveRecordEl.innerText = score; }
-                playSound('success'); coinSpeed += 0.15; dropNewCoin();
+        function toggleGame() {
+            const btn = document.getElementById('game-btn');
+            if (gameActive) { 
+                gameActive = false; 
+                clearTimeout(gameTimer); 
+                document.getElementById('game-zone').innerHTML = ""; 
+                balance += gameScore * 0.5; 
+                updateBalanceUI(); 
+                if (gameScore > 0) playSound('success');
+                btn.innerText = "Старт"; 
+            }
+            else { 
+                gameActive = true; 
+                gameScore = 0; 
+                document.getElementById('game-score').innerText = 0; 
+                btn.innerText = "Стоп"; 
+                spawnCoin(); 
             }
         }
-        if (coinY >= areaHeight) {
-            gameActive = false; clearInterval(gameLoopInterval); playSound('error');
-            finalScoreText.innerText = `Вы поймали: ${score} монет!`; gameOverScreen.style.display = 'flex';
+
+        function spawnCoin() {
+            if (!gameActive) return;
+            const zone = document.getElementById('game-zone'); zone.innerHTML = "";
+            const coin = document.createElement('div'); coin.className = "coin"; coin.innerText = "₽";
+            coin.style.left = Math.random() * (zone.clientWidth - 40) + "px";
+            coin.style.top = Math.random() * (zone.clientHeight - 40) + "px";
+            coin.onclick = () => { 
+                gameScore++; 
+                document.getElementById('game-score').innerText = gameScore; 
+                playSound('coin'); 
+                spawnCoin(); 
+            };
+            zone.appendChild(coin);
+            clearTimeout(gameTimer); gameTimer = setTimeout(spawnCoin, 1200);
         }
-    }
-</script>
+
+        function modifyBalance(action) {
+            const code = document.getElementById('admin-code').value;
+            const amount = parseFloat(document.getElementById('admin-amount').value);
+            if (code !== ADMIN_CODE || !amount) { playSound('error'); return alert("Ошибка!"); }
+            balance = action === 'add' ? balance + amount : balance - amount;
+            updateBalanceUI();
+            playSound('success');
+        }
+    </script>
 </body>
 </html>
